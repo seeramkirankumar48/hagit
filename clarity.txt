@@ -1,0 +1,44 @@
+variables:
+local
+static
+instance
+data types:
+primitive
+non-primitive
+objects:
+new
+newInstance
+factory
+deserialization
+clone
+object initialization:
+.
+method
+constructor
+--default
+--parameterized
+
+copying the values from one object to another::
+1.clone() method
+2. . operator
+3.constructor
+
+still doubts::
+clone method
+revisit this
+why this and super should be the first keywords?
+how can a long(8 bytes) variable can be converted to the float(4 bytes) type?
+
+
+to add content::
+static::
+
+why we can't use this and super keyword in static because the this keyword is used to refer the current class instance and super keyword is used to refer the parent class instance.
+
+blocks::
+two types of blocks::
+1.instance
+2.static
+
+to note java data type sizes::
+

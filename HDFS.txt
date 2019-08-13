@@ -1,0 +1,135 @@
+why go for dfs??
+when size of the file is larger than the size of the disk it is neccessary to store the file in mulitple systems.
+
+hdfs is used to store the large files with streaming data access patterns on an commodity hardware.
+
+streaming data access pattern is such that it can read the entire data(in blocks) off from the disk using minimal seeks(as data is represented in terms of block) and maximum I/O of the disk.hdfs follows WORM (write once read many times) (data is written once and various types of analysis or performed on data)pattern hence there is much emphasis on reading many times for different jobs.
+
+hdfs can tolerate the node failure.
+
+hdfs tolerates the node failure with the help of replication factor configured in the config files.
+
+hdfs is not a good fit for::
+1.low latency data access::
+since it is used for batch processing it is not useful to get the high throughput(the amount of time taking to process) of the data.Hbase is used in this case.
+2.lots of small files::
+since the NN memory is limited and writing a file metadata to the NN memory will take around from 150 bytes to 200 bytes.
+assuming there are 1 million files to be written to memory= (1 million files inodes+ 1 million blocks) *150 bytes ~= 300 mb
+storing million is possible and billion is out of reach
+the maximum amount of files that we can store in the hadoop cluster is determined by the NN memory.
+3.multiple writers and arbitrary modifications::
+hadoop doesn't support for the multiple writers and whenever we want to modify a file it only appends at the end of the file in append only fashion so we cannot modify a file in between.
+
+-->hdfs stores the data interms of blocks of size 128mb which is(configurable).
+-->this is quite different as from that of the underlying file system where if the size of the file is 1mb it wont occupy all of the size of 128mb it only occupies the 1mb and releases 127mb of freespace for the other files.
+
+Advantages of file abstraction::
+---------------------------------
+1.client doesn't want to know whether if there is any free space or not since the data is handled by the multiple datanodes.
+2.client doesn't want to know if the user has right set of permissions to store the data in the datanodes since the metadata(whether the file has right set of permissions) is handled by the NN.
+3.client doesn't want to know from which replication factor(from which datanode) the data is coming from.
+
+-->to list the files in hdfs along with the file name and with the corresponding blocks use command::
+
+hdfs fsck / -files -blocks
+
+-->hdfs cluster comprises of nodes::
+there is a master node and number of slave nodes::
+the master node stores the metadata namespace of the files.
+the master node also knows which file has stored in which of the datanodes.however it doesn't store this data persistently since it is retrieved automatically when the system restarts and it(datanode) sends which blocks it has is sent to the NN in the form of heartbeats.
+
+-->the NN maintains the metadata information in 2 files namely,
+FSImage (filesystem image),
+editslog
+When the NN containing information is lost the complete information in the cluster is lost and there is no way to construct the data from the datanodes.
+hence it is called as SPOF(single point of failure).
+so, it is required to maintain the NN data persistent to failures.
+there are 2 ways to do this::
+1.maintaining the metadata writes in 2 places such as local as well NFS(network file system) such as nfsv3
+2.maintaining the secondary name node::
+the SNN will keepon merging the namespace image by not growing the edits log file by certain configurations such as limiting the transactions or for a particular amount of time. hence it is obvious that in the event of complete failure of the NN there is only a minimal amount of data loss(edits log info).In the event of NN failure the secondary NN may and can be configured by loading the entire information on NFS to inmemory and act it as a NN.
+
+Block Caching::
+the most frequently used blocks in the datanode are cached(block cache) per datanode which in turn will be useful while running the mapreduce tasks on them.
+users or applications instruct the NN which files to cache and for how long by adding a cache directive to the cache pool. 
+
+Namenode HA::
+-------------
+-->the memory is always a limiting factor for NN.
+-->it is possible to add multiple NN's in which one NN will manage one namespace and other NN will use another namespace.so, the failure of one NN doesn't effect the performance of another NN.however, the block reports from the datanodes is sent to both of the namenodes.
+
+since, NN is SPOF, if it fails then the entire mapreduce jobs running on the cluster could be failed. and hence it is mandatory to make the Namenode HA.
+since loading all of the metadata from SNN will take time it is necessary to run an passive namenode provided if,
+1.The entire NN fs image is loaded into the memory
+2.replayed its editslog
+3.recieved enough block information from the datanodes to leave the safe mode.
+since, the SNN functionality is subsumed by the passive or standby namenode,it is neccessary to make edits log information more highly available.hence NFS or QJM (which will be written to the majority of the journal nodes).so that standby node reads the data from the QJM incase of active failover.
+the data blocks information is sent both to the active as well as passive namenodes.
+clients must be configured to handle NN failover.
+if the active NN fails then the standby NN can quickly come into the picture because it has all the available metadata and the block information.
+
+Failover and Fencing::
+----------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+commands::
+----------
+1.to list the files along with the corresponding blocks for that file::
+hdfs fsck / -files -blocks
+2.to remove the files in the corresponding hdfs directory
+hadoop fs -rmr -skipTrash /user/edureka/Desktop
+3.to keep a file on top of hdfs::
+hdfs fs -put wordcount.txt /user/edureka
+
+
+doubts::
+--------
+1.what are the different configurations in the different config files?
+2.what are inodes?
+3.what is the calculation of if seektime is 10ms in guide?
+4.what is qjm?
+5.what is nfs?
+6.why the block size is 128mb?
+7.
+
+
+implinks::
+-----------
+1.https://hadoopabcd.wordpress.com/2015/05/31/hadoop-hdfs-federation/#more-555
+2.http://blog.madhukaraphatak.com/secondary-namenode---what-it-really-do/
+3.https://blog.cloudera.com/blog/2009/02/the-small-files-problem/
+4.https://stackoverflow.com/questions/22353122/why-is-a-block-in-hdfs-so-large
+5.https://martin.atlassian.net/wiki/pages/viewpage.action?pageId=26148906
+6.https://hadoopabcd.wordpress.com/
+
+datasets::
+-----------
+1.code and examples::
+http://hadoopbook.com/
+2.case studies::
+https://github.com/oreillymedia/hadoop_the_definitive_guide_4e/blob/master/Hadoop_TDG_3E--case_studies.pdf
+3.complete resources links::
+https://github.com/tomwhite/hadoop-book/
+
+
+
+
+

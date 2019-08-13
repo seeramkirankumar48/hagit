@@ -1,0 +1,4 @@
+1.nested classes
+2.serialization
+3.java collections
+4.transient

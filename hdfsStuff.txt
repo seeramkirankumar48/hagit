@@ -1,0 +1,6 @@
+There are 4 processing models
+1.Interactive SQL(Hive on tez)
+2.Iterative(holds each intermediate result in the memory possible with spark but not with MR)
+3.Streaming(Spark Streaming)
+4.Search(SolR)
+5.Batch

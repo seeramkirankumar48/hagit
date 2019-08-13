@@ -1,0 +1,400 @@
+1.why going for HBase??
+A.The data stored in HDFS is processed by batch and data is read sequentially.However, there is a need for random access of data and high availability is the option so hbase is developed on top of the HDFS.
+Hbase stores the data sorted by the key.
+2.what is the difference b/w RDBMS & NOSql
+A.RDBMS is schema defined and not suitable for schema evolution and it doesn't scaleout when the database is growing since there is problem of (Data Normalization acid properties). The Rdbms performing aggregations is a tremendous time consuming task as it is row oriented.
+3.In HBase a table is defined with column families and a column family may contain any number of rows and each table in it is sorted by row.
+4.HBase is horizontally scalable.
+5.Hbase provides consistent reads and writes.
+6.HBase is CP(consistent and partition tolearance) application.
+7.InOrder to start HBase we need to start HDFS.
+The main daemon components of hbase are HMaster(3 nodes typically for high availability) and HRegionServer(Configured typically 1 for slave machine).
+	bin/start-dfs.sh
+	under it contains master and slaves
+	and then we have to start hbase
+	bin/start-hbase.sh-- it will internally invoke Hmaster and Regionservers.
+	In the hbase configurations there will be a file called regionservers in that it will contain the list of slave machines where the regionservers are.if start-hbase.sh is invoked then it will start all the regionservers.
+8.Hbase is an indexed filesystem on top of HDFS.
+9.In Hbase we won't store the unneccesary data as null it is same as Jagged Arrays concept.so that, unnecessary memory is not occupied.
+10.In sql we specify the schema on create and during insert it will check for schema validations, where as in hbase we will specify column families and during insert we will specify the actual column schema.
+11.There should be atleast one column family when defining the table in hbase.
+	create 'emp','personal','official'
+12.In Hbase the master and slaves are Hmaster and RegionServer
+13.The HMaster and Namenode can be seperate daemons running on individual machines but the regionservers are maintained on top of the datanodes.
+14.to enter into the Hbase shell command::
+hbase shell
+15.The Regionservers contain the memstore,HFile and the wal logs.
+16.typically the data is written to the memstore and wal(write ahead log) of the regionservers before being flushed into the regionservers data.
+
+
+hbase commands::
+----------------
+//To logically order the tables we can create the namespace for the tables::
+create_namesapce 'retail'
+
+//To list the namespace's::
+list_namespace
+
+//To create a table::
+create 't2','cf1'
+
+to list the tables under the namespace::
+list_namespace_tables 'retail'
+
+to insert the records into the table::
+ put 'retail:t2','r1','cf1:c1','v1'
+ 
+to select the table records::
+scan 'retail:t2'
+
+//when we insert an another record with 'r2' as row key by specifying random columns::
+put 'retail:t2','r2','cf1:c2','v2'
+0 row(s) in 0.0420 seconds
+
+hbase(main):032:0> put 'retail:t2','r2','cf1:c1','v1'
+0 row(s) in 0.0100 seconds
+
+hbase(main):033:0> scan 'retail:t2'
+ROW                                         COLUMN+CELL                                                                                                                 
+ r1                                         column=cf1:c1, timestamp=1516022617134, value=v1                                                                            
+ r2                                         column=cf1:c1, timestamp=1516022731426, value=v1                                                                            
+ r2                                         column=cf1:c2, timestamp=1516022721096, value=v2                                                                            
+2 row(s) in 0.0300 seconds
+
+//In Hbase it will store the records in sorted order.
+
+//To get the records count ::
+count 'retail:t2'
+
+//To get the records with specific row key::
+ get 'retail:t2', 'r1'
+COLUMN                                      CELL                                                                                                                        
+ cf1:c1                                     timestamp=1516022617134, value=v1                                                                                           
+1 row(s) in 0.0190 seconds
+
+//Program::
+GettingStarted.java
+
+package hbase;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
+
+public class GettingStarted {
+
+	static Configuration conf = HBaseConfiguration.create();
+
+	public static void main(String[] args) throws Exception {
+		conf.set("hbase.zookeeper.quorum", "hadoop271.itversity.com");
+		conf.set("hbase.zookeeper.property.clientPort", "2181");
+		
+		Connection connection = ConnectionFactory.createConnection(conf);
+		Table table = connection.getTable(TableName.valueOf("demo"));
+		
+		Scan scan1 = new Scan();
+		ResultScanner scanner1 = table.getScanner(scan1);
+
+		for (Result res : scanner1) {
+			System.out.println(Bytes.toString(res.getRow()));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column1".getBytes())));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column2".getBytes())));
+		}
+
+		scanner1.close();
+
+		Put put = new Put("3".getBytes());
+
+		put.addColumn("cf1".getBytes(), "column1".getBytes(), "value1".getBytes());
+		put.addColumn("cf1".getBytes(), "column2".getBytes(), "value2".getBytes());
+
+		table.put(put);
+
+		Get get = new Get("3".getBytes());
+		Result getResult = table.get(get);
+		System.out.println("Printing colunns for rowkey 3");
+		System.out.println(Bytes.toString(getResult.getValue("cf1".getBytes(), "column1".getBytes())));
+		System.out.println(Bytes.toString(getResult.getValue("cf1".getBytes(), "column2".getBytes())));
+
+		scanner1 = table.getScanner(scan1);
+		System.out.println("Before Delete");
+		for (Result res : scanner1) {
+			System.out.println(Bytes.toString(res.getRow()));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column1".getBytes())));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column2".getBytes())));
+		}
+
+		scanner1.close();
+
+		Delete del = new Delete("3".getBytes());
+		table.delete(del);
+		
+		System.out.println("After Delete");
+
+		scanner1 = table.getScanner(scan1);
+		
+		for (Result res : scanner1) {
+			System.out.println(Bytes.toString(res.getRow()));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column1".getBytes())));
+			System.out.println(Bytes.toString(res.getValue("cf1".getBytes(), "column2".getBytes())));
+		}
+
+		scanner1.close();
+		table.close();
+		connection.close();
+
+	}
+
+}
+
+NyseParser.java
+
+package hbase;
+
+public class NyseParser {
+	String stockTicker;
+	String transactionDate;
+	Float openPrice;
+	Float highPrice;
+	Float lowPrice;
+	Float closePrice;
+	Integer volume;
+	
+	public void parse(String record) {
+		String[] vals = record.split(",");
+        stockTicker = vals[0];
+        transactionDate = vals[1];
+        openPrice = new Float(vals[2]); 
+        highPrice = new Float(vals[3]);
+        lowPrice = new Float(vals[4]);
+        closePrice = new Float(vals[5]);
+        volume = new Integer(vals[6]);
+	}
+	
+	public String getStockTicker() {
+		return stockTicker;
+	}
+	public void setStockTicker(String stockTicker) {
+		this.stockTicker = stockTicker;
+	}
+	public String getTransactionDate() {
+		return transactionDate;
+	}
+	public void setTransactionDate(String transactionDate) {
+		this.transactionDate = transactionDate;
+	}
+	public String getYear() {
+		String year = "";
+		year = transactionDate.substring(7);
+		return year;
+	}
+	public Float getOpenPrice() {
+		return openPrice;
+	}
+	public void setOpenPrice(Float openPrice) {
+		this.openPrice = openPrice;
+	}
+	public Float getHighPrice() {
+		return highPrice;
+	}
+	public void setHighPrice(Float highPrice) {
+		this.highPrice = highPrice;
+	}
+	public Float getLowPrice() {
+		return lowPrice;
+	}
+	public void setLowPrice(Float lowPrice) {
+		this.lowPrice = lowPrice;
+	}
+	public Float getClosePrice() {
+		return closePrice;
+	}
+	public void setClosePrice(Float closePrice) {
+		this.closePrice = closePrice;
+	}
+	public Integer getVolume() {
+		return volume;
+	}
+	public void setVolume(Integer volume) {
+		this.volume = volume;
+	}
+
+}
+
+
+NyseLoad.java
+
+package hbase;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
+public class NyseLoad {
+
+	static Configuration conf = HBaseConfiguration.create();
+	static NyseParser nyseParser = new NyseParser();
+	static Table table;
+
+	static final Logger logger = Logger.getLogger(NyseLoad.class);
+	
+	public static Put buildPutList(Table table, NyseParser nyseRecord)
+			throws RetriesExhaustedWithDetailsException, InterruptedIOException, IOException {
+
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+		String transactionDate = null;
+		try {
+			transactionDate = (new SimpleDateFormat("yyyy-MM-dd")
+					.format(formatter.parse(nyseRecord.getTransactionDate())))
+					.toString();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if(transactionDate == null || transactionDate.equals("null")) 
+			System.out.println(nyseRecord.getTransactionDate());
+		
+		Put put = new Put(Bytes.toBytes(nyseRecord.getStockTicker() + ","
+				+ transactionDate)); // Key
+
+		put.addColumn(Bytes.toBytes("sd"), Bytes.toBytes("op"),
+				Bytes.toBytes(nyseRecord.getOpenPrice().floatValue()));
+		put.addColumn(Bytes.toBytes("sd"), Bytes.toBytes("hp"),
+				Bytes.toBytes(nyseRecord.getHighPrice().floatValue()));
+		put.addColumn(Bytes.toBytes("sd"), Bytes.toBytes("lp"),
+				Bytes.toBytes(nyseRecord.getLowPrice().floatValue()));
+		put.addColumn(Bytes.toBytes("sd"), Bytes.toBytes("cp"),
+				Bytes.toBytes(nyseRecord.getClosePrice().floatValue()));
+		put.addColumn(Bytes.toBytes("sd"), Bytes.toBytes("v"),
+				Bytes.toBytes(nyseRecord.getVolume().intValue()));
+
+		return put;
+
+	}
+	
+	public static void loadPutList(List<Put> puts, Table table) throws IOException {
+		table.put(puts);
+	}
+
+	public static void readFilesAndLoad(Table table, String nysePath) {
+		int counter = 1;
+		
+		List<Put> puts = new ArrayList<Put>();
+		
+		File localInputFolder = new File(nysePath);
+		File[] listOfDirectories = localInputFolder.listFiles();
+		for (File dir : listOfDirectories) {
+			if (dir.isDirectory()) {
+				File[] files = dir.listFiles();
+				for (File file : files) {
+					BufferedReader br = null;
+					if (file.getName().endsWith("csv")) {
+						try {
+
+							String sCurrentLine;
+
+							br = new BufferedReader(new FileReader(file));
+
+							while ((sCurrentLine = br.readLine()) != null) {
+								if(++counter%10000 == 0)
+									logger.info(counter);
+								nyseParser.parse(sCurrentLine);
+								puts.add(buildPutList(table, nyseParser));
+							}
+							loadPutList(puts, table);
+
+						} catch (IOException e) {
+							e.printStackTrace();
+						} finally {
+							try {
+								if (br != null)
+									br.close();
+							} catch (IOException ex) {
+								ex.printStackTrace();
+							}
+						}
+					}
+
+				}
+
+			}
+
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+
+		conf.set("hbase.zookeeper.quorum", args[0]);
+		conf.set("hbase.zookeeper.property.clientPort", "2181");
+
+		Connection connection = ConnectionFactory.createConnection(conf);
+		Table table = connection.getTable(TableName.valueOf("nyse:stock_data"));
+
+		readFilesAndLoad(table, args[1]);
+
+		table.close();
+		connection.close();
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+doubts:
+1.Although we are defining the column families in hbase table creation why it is schema-less?
+2.How the data is stored in RDBMS?
+3.What is meant by jvm running on the processor??

@@ -1,0 +1,1139 @@
+hive::
+------
+There are 3 server components of hive::
+1.hive metastore
+//It is used to store the table metadata.
+//To start the hive metastore service::
+hive --service metastore &
+2.hiveserver2
+//HS2 is an server interface of hive. It supports the concurrency and multi user authentication.
+3.WebHcatServer
+
+
+//There are multiple clients which will use the hive server components::
+1.HIVE CLI
+2.HUE
+
+
+To get into the hive shell::
+type hive and hit enter
+
+to execute the command without entering into the hive shell::
+hive -e "set;"
+
+to search for the specific options in the set command use grep in combination with set;
+
+hive -e "set;" | grep warehouse
+
+set mapred.job.tracker=local //will set whether the job is running on local mode or mapreduce mode.
+set hive.cli.print.current.db=true; gives the current db we are using by default it gives the default database.
+
+All the table metadata is stored in metastore db which is configured in the parameters::(hive-site.xml)
+javax.jdo.option.connectionURL which is pointing towards the RDBMS.
+
+//creation of a sample database in hive::
+create database nyse;
+
+//use database
+use nyse;
+
+
+//There are several types of datatypes are available while creating the columns in hive::
+tinyint,bigint,smallint,int,float,double,string,varchar,char,timestamp(unix related timestamp),Date
+
+//There are also complex datatypes allowed::
+arrays,maps,structs,unions
+
+
+//creation of a sample table in hive::
+create table t_old( i int,s string);
+
+alter table t_old rename to t_new;
+
+
+//To alter column names::
+CREATE TABLE test_change (a int, b int, c int);
+
+// will change column a's name to a1
+ALTER TABLE test_change CHANGE a a1 INT;
+
+//insert into the table
+insert into table t values(1,"HelloWorld")
+
+you can view the table using the following commands::
+describe t;
+//will show the table columns along with the datatypes.
+
+describe extended t;
+//shows some extra information
+
+describe formatted t;
+//all the metadata of the table in readable format is displayed.
+//such as inputformat,outputformat,field delimiters and line delimiters,owner,created date,number of rows
+
+set hive.metastore.warehouse.dir;
+//will display where the data is stored.
+
+//whenever any operations are performed in the hive tables these operations will trigger an MR jobs.
+
+//The hive logs will be stored in the /tmp directory since it uses the directory (java.io.tmp) as default.under this directory it will have the name of that particular user where it will store the hive logs on the daily basis.. the current hive log will be stored as hive.log file.
+
+//If we want to overrite the specific functions we can override the configurations in hiverc file.
+It will be present in the ~/.hiverc
+
+you can set the properties such as hive.cli.print.current.db=true;
+//will show the db currently using...
+
+//There are 2 types of tables in hive::
+1.external table //It is used when the data already exists in the hdfs directory and there is no corresponding table for that.
+2.managed table //It is used to create when the data doesnot exists in the hdfs directory its like creating a normal table.
+
+To create an external table::
+//specifying the location for external table is mandatory since it depends on the location.
+
+create external table nyse_external_table(
+stockticker string,
+tradedate int,
+openprice float,
+highprice float,
+lowprice float,
+closeprice float,
+volume bigint)
+row format delimited fields terminated by ','
+stored as textfile
+location '/user/edureka/nyse_external'
+
+To create an managed table::
+//specifying the location for the managed table is optional.
+
+create table nyse_managed_table(
+stockticker string,
+tradedate int,
+openprice float,
+highprice float,
+lowprice float,
+closeprice float,
+volume bigint)
+row format delimited fields terminated by ','
+stored as textfile
+location '/user/edureka/nyse_managed'
+
+when we drop the both of the tables using drop command as follows::
+drop table nyse_managed_table;
+drop table nyse_external_table;
+
+//the external location data will not be deleted in the hdfs, the reason is it will be retained for running some other alternate programming paradigms such as mapreduce,spark jobs.
+
+//when we drop the managed table it will delete the corresponding hdfs directory aswell.
+
+//to get how the table is created use::
+show create table t;
+
+//to create the table and load the local data into the table::
+
+create table nyse_table(
+stockticker string,
+tradedate int,
+openprice float,
+highprice float,
+lowprice float,
+closeprice float,
+volume bigint)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_all' into table nyse_table
+
+//to load the data that already exists in the hdfs use::
+
+create table nyse_hdfs_table(
+stockticker string,
+tradedate int,
+openprice float,
+highprice float,
+lowprice float,
+closeprice float,
+volume bigint)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+
+load data inpath 'hdfs://localhost:8020/user/edureka/nyse_year/" into table nyse_hdfs_table
+
+//If the data for the table is loaded from hdfs directory in to the table then the contents from the source hdfs directory are moved to the destination directory (thus it increases the peformance of the hdfs).
+
+//We can set the partitions for the hive table in 2 ways::
+
+1.list (partitioned by)
+2.Hash (clustered by)
+
+you can create the partition table using ::
+
+create table nyse_list_table(
+stockticker string,
+tradedate int,
+openprice float,
+highprice float,
+lowprice float,
+closeprice float,
+volume bigint)
+partitioned by(tradeyear int)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+
+//describe formatted nyse_list_table
+It will show the partitioned by column also in the table description.
+
+//The partitioned column should not be part of the columns list specified as part of the table.
+
+//The partitioned by will create the subdirectories in the hdfs directory of the corresponding hive table however these subdirectories are not available once the table is created it will be available only once if the partition is done.
+
+
+//The partitioned by should always have the less cardinality.
+
+Ex::If the partitioned by is an timestamp. for each and every record insertion into the hive table it will create the directory and then it inserts the record.As, the memory space of HDFS is limited by the namespace volume of the NN. too much folders creation will eat up the NN memory.Hence instead of timestamp it is better practice to have (year,month,day)
+
+//to add the partition::
+alter table nyse_list_table add partition (tradeyear=2009);
+alter table nyse_list_table add partition (tradeyear=2010);
+alter table nyse_list_table add partition (tradeyear=2011);
+alter table nyse_list_table add partition (tradeyear=2012);
+alter table nyse_list_table add partition (tradeyear=2013);
+alter table nyse_list_table add partition (tradeyear=2014);
+
+
+ dfs -ls /user/hive/warehouse/nyse.db/nyse_list_table;                                                                    
+Found 6 items
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:54 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2009
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:59 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2010
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:59 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2011
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:59 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2012
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:59 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2013
+drwxr-xr-x   - edureka supergroup          0 2017-12-31 17:59 /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2014
+hive> 
+
+we can load the data into these corresponding direcotories either by using the::
+1.hadoop fs -put
+
+hadoop fs -put /home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2009.txt /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2009/
+
+2.load command
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2010.txt' into table nyse_list_table 
+partition(tradeyear=2010);
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2011.txt' into table nyse_list_table 
+partition(tradeyear=2011);
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2012.txt' into table nyse_list_table 
+partition(tradeyear=2012);
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2013.txt' into table nyse_list_table 
+partition(tradeyear=2013);
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/nyse/nyse_year/nyse_2014.txt' into table nyse_list_table 
+partition(tradeyear=2014);
+
+
+//when we select the table with the select command it will show the records of the table along with the partitioned column in the last however in hdfs it will store only the specified fields while creating the table, this extra field will come from the partition command which it internally created the directory.
+
+select * from nyse_list_table limit 5;                                                                          
+OK
+ZTR	20091231	15.68	15.72	15.68	15.72	349600	2009
+ZQK	20091231	2.07	2.07	2.07	2.07	455900	2009
+ZNH	20091231	15.63	15.66	15.63	15.66	48800	2009
+ZMH	20091231	59.65	59.89	59.65	59.89	562200	2009
+ZLC	20091231	2.91	2.91	2.91	2.91	1412700	2009
+Time taken: 0.131 seconds, Fetched: 5 row(s)
+
+
+dfs -tail /user/hive/warehouse/nyse.db/nyse_list_table/tradeyear=2010/nyse_2010.txt
+    > ;
+8.05,0
+AEC,20100101,11.27,11.27,11.27,11.27,0
+AEB,20100101,17.05,17.05,17.05,17.05,0
+ADX,20100101,10.1,10.1,10.1,10.1,0
+ADS,20100101,64.59,64.59,64.59,64.59,0
+ADM,20100101,31.31,31.31,31.31,31.31,0
+ADC,20100101,23.29,23.29,23.29,23.29,0
+ACO,20100101,28.42,28.42,28.42,28.42,0
+
+
+//suppose, If there is a partition with 2015 with few records such as and loaded into the partition::
+
+AEC,20150101,11.27,11.27,11.27,11.27,0
+AEB,20150101,17.05,17.05,17.05,17.05,0
+ADX,20150101,10.1,10.1,10.1,10.1,0
+ADS,20150101,64.59,64.59,64.59,64.59,0
+ADM,20150101,31.31,31.31,31.31,31.31,0
+ADC,20150101,23.29,23.29,23.29,23.29,0
+ACO,20150101,28.42,28.42,28.42,28.42,0
+
+and we have the sample data for 2016 partition records in the local directory.
+
+AEC,20160101,11.27,11.27,11.27,11.27,0
+AEB,20160101,17.05,17.05,17.05,17.05,0
+ADX,20160101,10.1,10.1,10.1,10.1,0
+ADS,20160101,64.59,64.59,64.59,64.59,0
+ADM,20160101,31.31,31.31,31.31,31.31,0
+ADC,20160101,23.29,23.29,23.29,23.29,0
+ACO,20160101,28.42,28.42,28.42,28.42,0
+
+and if data(2016) is loaded in to the partition of 2015 then if the select command is applied it will treat that entire partition as 2015.
+
+//the result will be::
+
+select * from nyse_list_table where tradeyear=2015
+    > ;
+OK
+AEC	20150101	11.27	11.27	11.27	11.27	0	2015
+AEB	20150101	17.05	17.05	17.05	17.05	0	2015
+ADX	20150101	10.1	10.1	10.1	10.1	0	2015
+ADS	20150101	64.59	64.59	64.59	64.59	0	2015
+ADM	20150101	31.31	31.31	31.31	31.31	0	2015
+ADC	20150101	23.29	23.29	23.29	23.29	0	2015
+AEC	20160101	11.27	11.27	11.27	11.27	0	2015
+AEB	20160101	17.05	17.05	17.05	17.05	0	2015
+ADX	20160101	10.1	10.1	10.1	10.1	0	2015
+ADS	20160101	64.59	64.59	64.59	64.59	0	2015
+ADM	20160101	31.31	31.31	31.31	31.31	0	2015
+ADC	20160101	23.29	23.29	23.29	23.29	0	2015
+Time taken: 0.132 seconds, Fetched: 12 row(s)
+hive> 
+
+The key take aways for the list partition are ::
+1.when the partitioned table is created the partitioned column should be independent of the table column.
+2.when the wrong data is loaded into the partition it will not throw any errors.
+
+For the table partitioning there can be 2 scenarios::
+
+1.Having data independently & then creating the partition directory & loading.
+2.having already unpartitioned data in the table which is to be stored in the partitions.(dynamic partition).
+	a.table with the unpartitioned data.
+	b.table with partitioned schema.
+	
+//Inorder to load the data into the table::
+//we have to set the property
+set	hive.exec.dynamic.partition.mode=nonstrict
+
+insert into table nyse_list_table partition (tradeyear) 
+select t.*,cast(substr(tradedate,1,4) as int) tradeyear from nyse_hdfs_table t;
+
+//insert is always recommended than load because the load will be useful only if the preformatted data is available. If there are any transformations involved then it is better to load the data using the insert command.
+
+//If we create a table with '|' as the delimiter and then load the data which is delimited by ',' and in if the select command is applied::
+1.If the first data type of the table is string then it will show::
+first field the content and the remaining fields as null.
+
+ZTR,20091231,15.68,15.72,15.68,15.72,349600	NULL	NULL	NULL	NULL	NULL	NULL
+ZQK,20091231,2.07,2.07,2.07,2.07,455900	NULL	NULL	NULL	NULL	NULL	NULL
+ZNH,20091231,15.63,15.66,15.63,15.66,48800	NULL	NULL	NULL	NULL	NULL	NULL
+ZMH,20091231,59.65,59.89,59.65,59.89,562200	NULL	NULL	NULL	NULL	NULL	NULL
+ZLC,20091231,2.91,2.91,2.91,2.91,1412700	NULL	NULL	NULL	NULL	NULL	NULL
+ZF,20091231,13.48,13.6,13.48,13.6,246400	NULL	NULL	NULL	NULL	NULL	NULL
+
+2.If the first field is not of the string type then,
+
+NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL
+
+//The load into command will always append the contents to the table..
+load data inpath 'directory' into table table_name
+
+//to overwrite the table contents..
+load data inpath 'directory' overwrite into table table_name
+
+//you can execute a group of hive commands by inserting the commands into a file
+
+cat > hive_sql.hql
+use nyse;
+select * from orders_stage limit 10;
+
+hive -f hive_sql.hql
+
+//It is better if we give the extension with .hql so that we can determine it is an hive query language.
+
+//we can create a table of our own format and write the file of our own compression.
+
+lets say we have created the table of sequencefile format.
+
+create table orders_stage
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile;
+
+create table orders_seq
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as sequencefile;
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/retail_db_comma/orders' into table orders_stage;
+
+we have to inform the hive to use the compress and also inform what type of compression is used for that,
+
+hive.exec.compress.output=true; //set for compression.
+mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.GzipCodec; //setting the compression codec
+
+to load the data into the orders_seq ::
+insert into table order_seq
+select * from orders_stage;
+
+It will store with that compression specified and with that file format.
+
+when we again set the hive.exec.compress.output=false;
+
+and then again load the data using::
+
+insert into table order_seq
+select * from orders_stage;
+
+It will show all the records of the table with out any error (since the file is in line with the file format specified it will show all the records).
+
+
+Hash partitioning::(clustered by)::
+-----------------------------------
+
+The hash partitioning will be applied on the hash key.
+
+While creating the table we need to specify the hash column to perform bucketing.
+
+create table orders_bucket
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+clustered by (order_id) into 16 buckets
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile
+
+//If the clustered by column is of a string type the hashcode of that particular string is calculated and inserted.
+
+//Before inserting the data we have to set the property::
+hive.enforce.bucketing=true;
+
+//To load the data into the bucketing table we cannot use the load command so the insert command is used.
+
+insert into orders_bucket
+select * from orders_seq;
+
+//The MR job will take care of the sequence file compressed data to be represented in the text file format.
+
+//The hash partitioning is very useful when the retrieval of the data is faster and there will be the uniform distribution of the records.
+
+//If you want to copy the result of the query to the local file use the query::
+
+insert overwrite local directory '/home/edureka/orders_by_status' select order_status,count(1) from orders_stage group by order_status;
+
+//The overwrite should be always defined while throwing the result.
+
+
+HIVE QL::
+---------
+
+//For some of the select queries it will not trigger any MR jobs.
+
+Ex:select * from categories limit 5;
+
+//It will trigger only when there are any transformations are involved.
+
+//while writing queries instead of using or condition we can use the in condition clause.
+
+select count(1) from orders where order_status='Complete' or order_status='Closed';
+
+select count(1) from orders where order_status in ('Complete','Closed');
+
+In hive there are lot of functions available::
+1.predefined
+2.user defined
+
+to show all the functions use::
+show functions;
+
+to get the definition of what does function do::
+describe function max;
+
+
+hive query to get the top 10 products which are sold by quantity where the transaction status of the order is either complete or closed
+
+select * from (
+select d.department_name,c.category_name,p.product_name,sum(oi.order_item_quantity) as totalquantity from order_items oi
+inner join products p
+on oi.order_item_product_id=p.product_id
+inner join categories c
+on c.category_id=p.product_category_id
+inner join departments d
+on d.department_id=c.category_department_id
+inner join orders o
+on o.order_id=oi.order_item_order_id
+where o.order_status in ('COMPLETE','CLOSED')
+group by oi.order_item_product_id,p.product_name,c.category_name,d.department_name 
+order by totalquantity desc
+) t limit 10;
+
+to get the execution plan for  the query ::
+
+explain query;
+
+//It will return the execution plan of the query in stages.
+
+//we can create a view on the tables::
+the view doesn't store the data in the physical form it only stores the data in the logical form.
+
+when we want to use multiple joins on some tables we can use a view.
+//we can also use views in joins also.
+
+we can create a view using::
+
+hive (kiran_final)> create or replace view vw_order_order_items as select o.*,oi.* from orders o join order_items oi on o.order_id=oi.order_item_id;
+
+//when in a query the order by clause is specified then there will be only one reducer task running on the data and sorting is appropriate.
+
+//when in a query the sort by clause is applied it will try to sort the data in the each of the reduce task and final output which we will get is may not be in sorted order.
+
+//the cluster by clause is similar to the distributed by and sort by (it will partitons and applies sort by).
+
+//the distribute by clause is used to divide the data into multiple reducers(where data is non-overlapping) and sorting is not performed.
+
+
+joins are of 4 types::
+1.innerjoin
+
+select category_name,product_name from categories cat join products p
+                  > on cat.category_id=p.product_category_id limit 2;
+
+
+2.left
+
+select category_name,product_name from categories cat left join products p
+                  > on cat.category_id=p.product_category_id limit 2;
+
+
+3.right
+
+select category_name,product_name from categories cat right join products p
+                  > on cat.category_id=p.product_category_id limit 2;
+
+
+4.full outer
+
+select category_name,product_name from categories cat full outer join products p
+                  > on cat.category_id=p.product_category_id limit 2;
+				  
+over by clause::
+the over by clause is used to combine both the partition data with the nonpartition data.
+
+
+by default all the joins are map side joins if we want the joins to be reduce side then we have to set the configuration property to be::
+set hive.auto.covert.join=true;
+
+//If it is false then the join will be reduce side join.
+
+difference between order by and sort by::
+//In order by it will use one and only one reducer to sort the entire data and sorted order is guaranteed and because it is using 1 reducer it may cause the contention of resources.
+//In Sort by it will use the multiple reducers it will sort the data running in that entire reducer and there is no guarantee of sorted order.
+
+//to create the one table from another table::
+use::
+create table orders_another as select * from orders; //It will create the table schema as well as the data is inserted.
+//But,while copying the data it will not copy the field delimters it will use the hive default delimiters only.
+//If we want to override the defaults then::
+create table orders_another1 row format delimited fields terminated by ',' lines terminated by '\n' as select * from orders;
+
+to create a table with only the schema::
+create table orders_another1 as select * from orders where 1=2;
+
+HIVE UDF's::(User Defined Functions)
+------------
+In hive there are 2 types of UDF's::
+1.Simple UDF's (suitable for Text, IntWritable, LongWritable, DoubleWritable, etc.)
+2.Generic UDF's (suitable for Array,List,Map)
+
+for simple UDF we need to implement::org.apache.hadoop.hive.ql.exec.UDF and need to implement method for Evaluate
+for generic UDF we need to implement::org.apache.hadoop.hive.ql.udf.generic.GenericUDF and we need to implement(getDisplayString,
+initialize,
+evaluate)
+//here will take one input and produce a single output from the UDF.
+
+
+HIVE UDAF's::(User Defined Aggregate Functions)
+-----------------------------------------------
+:We have to extend a base Class UDAF to write our business logic in Java. Step2: We need to overwrite five methods called init(), iterate(), terminatePartial(), merge() and terminate() in our class
+
+//here we'll take multiple entries and produce a single record
+
+Ex:Sum
+
+HIVE UDTF's::(User Defined Tabular Function (UDTF))
+-----------------------------------------------
+//here we'll take single input and produce multiple output records.
+//UDTF is nothing but the Generic UDF.
+import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
+
+
+Hive UDF::
+---------
+package org.hardik.letsdobigdata;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.hive.ql.exec.UDF;
+import org.apache.hadoop.io.Text;
+public class Strip extends UDF {
+private Text result = new Text();
+ public Text evaluate(Text str, String stripChars) {
+ if(str == null) {
+ return null;
+ }
+ result.set(StringUtils.strip(str.toString(), stripChars));
+ return result;
+ }
+ public Text evaluate(Text str) {
+ if(str == null) {
+ return null;
+ }
+ result.set(StringUtils.strip(str.toString()));
+ return result;
+ }
+}
+
+CREATE TEMPORARY FUNCTION STRIP AS 'org.hardik.letsdobigdata.Strip';
+
+select strip('   hiveUDF ') from dummy;
+
+Hive GenericUDF::
+-----------------
+class ComplexUDFExample extends GenericUDF {
+
+  ListObjectInspector listOI;
+  StringObjectInspector elementOI;
+
+  @Override
+  public String getDisplayString(String[] arg0) {
+    return "arrayContainsExample()"; // this should probably be better
+  }
+
+  @Override
+  public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
+    if (arguments.length != 2) {
+      throw new UDFArgumentLengthException("arrayContainsExample only takes 2 arguments: List<T>, T");
+    }
+    // 1. Check we received the right object types.
+    ObjectInspector a = arguments[0];
+    ObjectInspector b = arguments[1];
+    if (!(a instanceof ListObjectInspector) || !(b instanceof StringObjectInspector)) {
+      throw new UDFArgumentException("first argument must be a list / array, second argument must be a string");
+    }
+    this.listOI = (ListObjectInspector) a;
+    this.elementOI = (StringObjectInspector) b;
+    
+    // 2. Check that the list contains strings
+    if(!(listOI.getListElementObjectInspector() instanceof StringObjectInspector)) {
+      throw new UDFArgumentException("first argument must be a list of strings");
+    }
+    
+    // the return type of our function is a boolean, so we provide the correct object inspector
+    return PrimitiveObjectInspectorFactory.javaBooleanObjectInspector;
+  }
+  
+  @Override
+  public Object evaluate(DeferredObject[] arguments) throws HiveException {
+    
+    // get the list and string from the deferred objects using the object inspectors
+    List<String> list = (List<String>) this.listOI.getList(arguments[0].get());
+    String arg = elementOI.getPrimitiveJavaObject(arguments[1].get());
+    
+    // check for nulls
+    if (list == null || arg == null) {
+      return null;
+    }
+    
+    // see if our list contains the value we need
+    for(String s: list) {
+      if (arg.equals(s)) return new Boolean(true);
+    }
+    return new Boolean(false);
+  }
+  
+}
+
+
+HIVE UDAF::
+-----------
+
+import org.apache.hadoop.hive.ql.exec.UDAF;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.hive.ql.exec.UDAFEvaluator;
+@SuppressWarnings("deprecation")
+public class Max extends UDAF {
+	public static class MaxIntUDAFEvaluator implements UDAFEvaluator {
+		private IntWritable output;
+		public void init()
+		{
+			output = null;
+		}
+		public boolean iterate(IntWritable maxvalue) // Process input table
+		{
+			if (maxvalue == null)
+			{
+				return true;
+			}
+			if (output == null)
+			{
+				output = new IntWritable(maxvalue.get());
+			}
+			else
+			{
+				output.set(Math.max(output.get(), maxvalue.get()));
+			}
+			return true;
+		}
+		public IntWritable terminatePartial()
+		{
+			return output;
+		}
+		public boolean merge(IntWritable other)
+		{
+			return iterate(other);
+		}
+		public IntWritable terminate() // final result
+		{
+			return output;
+		}
+	}
+}
+
+
+
+
+ORC::
+-----
+it stands for Optimized Row Columnar Format.
+
+Ex:: If in a text file the students table records are stored as::
+
+sno 	sname	total
+1		kiran    80
+2		sandy	 70
+
+It stores the records one by one in a file with the delimiters of field and line as::
+1,kiran,80|2,sandy,70
+
+suppose if we want to sum(total) then it will take one row by another row and it will take the total for that particular record and it will do the same process for the next level of transformations for that record and gives the sum.
+
+Instead in ORC::
+these records are stored in multiple partitions so that the logic is applied parallely on those multiple partitions and these records are stored in such a way that all the column values are stored together and when we apply sum(total) it will not take entire record, it will take all the total record columns and apply the sum logic.
+
+
+//It will increase the performance by reducing the network Io and File Io.
+//It increases the Query Performance.
+
+create table student_orc
+stored as Orc.
+
+//To set the default file format to ORC
+hive.default.fileformat=Orc
+
+//To make the Query further optimized we can use partitioned by and clustered by also,
+
+Hive Vectorization::
+--------------------
+In a typical hive query execution it will take and process one record at a time, where as in hive vectorization it will take a batch of records and process them together.
+
+we can set this feature using::
+set hive.vectorized.execution.enabled=true;
+
+Hive Record updation::
+----------------------
+
+//hive record updations are possible form v0.14
+but below are the conditions::
+1.fileformat must be Orc.
+2.TBLProperties(transactional='true')
+3.table must be clustered by
+
+
+//you can't update on the clustered by column.
+
+
+Hive SERDE::
+------------
+//SERDE stands for serialization/de-serialization.
+//hive will serialize and deserialize while reading in and out from the filesystem using serde.
+
+JSON Data::
+-----------
+[{"field1":"data1","field2":100,"field3":"more data1","field4":123.001}, 
+{"field1":"data2","field2":200,"field3":"more data2","field4":123.002}, 
+{"field1":"data3","field2":300,"field3":"more data3","field4":123.003}, 
+{"field1":"data4","field2":400,"field3":"more data4","field4":123.004}]
+
+ADD JAR hive-json-serde-0.2.jar;
+
+CREATE TABLE my_table (field1 string, field2 int, field3 string, field4 double) ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.JsonSerde' ;
+
+LOAD DATA INPATH 'Test2.json' INTO TABLE my_table;
+
+select * from my_table;
+
+Hive Upsert::
+-------------
+
+//Upsert is nothing but insert and update.
+
+sometimes,we want the data to be same as the replica of the source.
+
+merge into customer_partitioned
+ using all_updates on customer_partitioned.id = all_updates.id
+ when matched then update set
+   email=all_updates.email,
+   state=all_updates.state
+ when not matched then insert
+   values(all_updates.id, all_updates.name, all_updates.email,
+   all_updates.state, all_updates.signup);
+   
+   
+//some times the data is loaded into the partitions.in those cases if the updates happen on those partitions we need to delete that data.
+
+merge into customer_partitioned
+ using (
+-- Updates with matching partitions or net new records.
+select
+  case
+       when all_updates.signup <> customer_partitioned.signup then 1
+       else 0
+     end as delete_flag,
+     all_updates.id as match_key,
+     all_updates.* from
+    all_updates left join customer_partitioned
+   on all_updates.id = customer_partitioned.id
+      union all
+
+ -- Produce new records when partitions don’t match.
+     select 0, null, all_updates.*
+     from all_updates, customer_partitioned where
+     all_updates.id = customer_partitioned.id
+     and all_updates.signup <> customer_partitioned.signup
+ ) sub
+on customer_partitioned.id = sub.match_key
+ when matched and delete_flag=1 then delete
+ when matched and delete_flag=0 then
+   update set email=sub.email, state=sub.state
+ when not matched then
+   insert values(sub.id, sub.name, sub.email, sub.state, sub.signup);
+   
+//some times we need to mask the data.
+update contacts set phone = mask(phone) where customer = 'MaxLeads';
+
+Configurations::
+hive.exec.mode.local.auto=false; //sets the hive exec mode not to local.
+set hive.cli.print.current.db=true; //Prints the current DB.
+javax.jdo.option.connectionURL //which is pointing towards the RDBMS.
+hive.metastore.uris; //gives a thrift based service that connects to the hive metastore.
+set hive.metastore.warehouse.dir; //prints the warehouse dir.
+set hive.cli.print.header=true; //prints the table headers.
+set	hive.exec.dynamic.partition.mode=nonstrict //this property needs to be set for the dynamic partitioning.
+hive.exec.compress.output=true; //set for compression.
+mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.GzipCodec; //setting the compression codec
+set hive.exec.compress.intermediate=true; //it will compress the intermediate output generated from maps.
+set hive.auto.convert.join=true; //mapjoin--true,reducejoin-false
+set hive.exec.parallel=true //to set the parallel execution of the jobs.
+hive.default.fileformat=Orc //to set the default file format to ORC.
+set hive.vectorized.execution.enabled=true; //to set the vectorized execution.
+hive.enforce.bucketing=true; //to enforce bucketing(clustered by)
+hive.execution.engine=mr;
+Hive Strict Mode ( hive.mapred.mode=strict) enables hive to restrict certain performance intensive operations. Such as –
+It restricts queries of partitioned tables without a WHERE clause.
+
+
+doubts::
+1.what is the use of invalidate metadata
+2.why for some of the files the compression file is larger than the normal file
+3.clusetered by vs partitioned by
+4.load data into the corresponding hdfs directory and then create the table using hive and use the query select *
+5.hive udfs's(user defined functions)
+6.hive table creation with xml and json schemas
+7.create a table with both the partition and cluster by schemas
+
+
+-------------
+sample queries
+-------------
+
+create database kiran_stage;
+
+use kiran_stage;
+
+create table categories
+(
+category_id int,
+category_department_id int,
+category_name string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile;
+
+load data local inpath '/home/edureka/KIRANWS/Datasets/retail_db_comma/categories/'
+into table categories;
+
+create external table customers
+(
+customer_id int,
+customer_fname string,
+customer_lname string,
+customer_email string,
+customer_password string,
+customer_street string,
+customer_city string,
+customer_state string,
+customer_zipcode string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/edureka/retail_db_comma/customers/';
+
+create external table departments
+(
+department_id int,
+department_name string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/edureka/retail_db_comma/departments/';
+
+
+create external table order_items
+(
+order_item_id int,
+order_item_order_id int,
+order_item_product_id int,
+order_item_quantity int,
+order_item_subtotal float,
+order_item_product_price float)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/edureka/retail_db_comma/order_items/';
+
+
+create external table orders
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/edureka/retail_db_comma/orders/';
+
+
+create external table products
+(
+product_id int,
+product_category_id int,
+product_name string,
+product_description string,
+product_price float,
+product_image string)
+row format delimited fields terminated by ','
+lines terminated by '\n'
+stored as textfile
+location '/user/edureka/retail_db_comma/products/';
+
+
+--------------------------
+
+create database kiran_final;
+
+use kiran_final;
+
+
+create table categories
+(
+category_id int,
+category_department_id int,
+category_name string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+create table customers
+(
+customer_id int,
+customer_fname string,
+customer_lname string,
+customer_email string,
+customer_password string,
+customer_street string,
+customer_city string,
+customer_state string,
+customer_zipcode string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+create table departments
+(
+department_id int,
+department_name string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+create table order_items
+(
+order_item_id int,
+order_item_order_id int,
+order_item_product_id int,
+order_item_quantity int,
+order_item_subtotal float,
+order_item_product_price float)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+create table orders
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+
+create table products
+(
+product_id int,
+product_category_id int,
+product_name string,
+product_description string,
+product_price float,
+product_image string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+
+set hive.exec.compress.output=true;
+set mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.GzipCodec;
+
+
+insert into table categories
+select * from kiran_stage.categories;
+
+insert into table customers
+select * from kiran_stage.customers;
+
+insert into table departments
+select * from kiran_stage.departments;
+
+insert into table order_items
+select * from kiran_stage.order_items;
+
+insert into table orders
+select * from kiran_stage.orders;
+
+insert into table products
+select * from kiran_stage.products;
+
+create table order_items_bucket
+(
+order_item_id int,
+order_item_order_id int,
+order_item_product_id int,
+order_item_quantity int,
+order_item_subtotal float,
+order_item_product_price float)
+clustered by (order_item_order_id) into 16 buckets
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+
+
+create table orders_bucket
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+clustered by (order_id) into 16 buckets
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+set hive.enforce.bucketing=true;
+
+
+insert into table order_items_bucket
+select * from order_items;
+
+insert into table orders_bucket
+select * from orders;
+
+set hive.enforce.bucketing=false;
+
+
+create table orders_partition
+(
+order_id int,
+order_date string,
+order_customer_id int,
+order_status string)
+partitioned by (order_month string)
+row format delimited fields terminated by '|'
+lines terminated by '\n'
+stored as textfile;
+
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+insert into table orders_partition partition(order_month)
+select t.*,substr(t.order_date,6,2) month from orders t;
+
+set hive.exec.compress.output=false;
+set mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.DefaultCodec;
+set hive.exec.dynamic.partitin.mode=strict;
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,22 @@
+what is pure functions?
+a.the function output will solely depend on the input.
+b.the function inputs cannot be changed.
+c.the function doesn't have any side effects.
+
+what are function side effects?
+the function side effects are those in which the function may not alter any variables that are out of scope of that particular function.
+ex: a function updating a global variable, and we cannot predict the output of these variables.
+
+what are the benefits of pure functions?
+a.the pure functions are safe.
+b.the output of pure functions is always same for the valid inputs at any time.
+c.we can use these functions as function composition(chaining of functions).
+
+what is meant by first class functions?
+//The first class functions should satisfy these three conditions.
+a.the function can be assigned to an variable (the functions can be used as an variables).
+b.the function can be passed to an another function(HigherOrder functions).
+c.The function can be an return value.
+
+
+

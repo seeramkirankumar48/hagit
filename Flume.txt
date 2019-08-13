@@ -1,0 +1,205 @@
+Flume::
+-------
+Flume is used let the data transfer from the source system to the destination system.
+
+SQOOP is used to transfer the RDBMS (any relational data) Data.
+Flume is typically used to transfer the webserver logs.
+
+//If the transferred Data from Flume is used by the multiple systems then KAFKA can be integrated with the flume.Then Kafka will take care of let the data transfer to the multiple systems.(It internally uses the Queue)
+
+//The main abstraction layer in the Flume is the Agent.
+//This agent is the daemon process which will be running until the Flume-ng command is up & running.
+//The agent consists of::
+
+Source(Source system)
+Channel(connection b/w the source and sink)
+sink(the destination)
+
+sample conf::
+---------------
+
+//FlumeAgent requires a conf file to load the data into the channel and sink.
+
+FileAgent.sources = tail
+FileAgent.channels = Channel-2
+FileAgent.sinks = HDFS
+
+FileAgent.sources.tail.type = exec
+FileAgent.sources.tail.command = tail -F /home/edureka/access.log
+FileAgent.sources.tail.channels = Channel-2
+
+FileAgent.sinks.HDFS.type = hdfs
+FileAgent.sinks.HDFS.hdfs.path = hdfs://localhost:8020/user/edureka/flume
+FileAgent.sinks.HDFS.hdfs.fileType = DataStream
+FileAgent.sinks.HDFS.channel = Channel-2
+
+FileAgent.channels.Channel-2.type = memory
+
+
+bin/flume-ng agent --conf ./conf/ -f conf/flume.conf -n FileAgent
+
+
+//--conf is used to specify the configuration directory.
+
+
+Conf from Netcat to the logger::
+---------------------------------
+# example.conf: A single-node Flume configuration 
+ 
+
+ # Name the components on this agent 
+ a1.sources = r1 
+ a1.sinks = k1 
+ a1.channels = c1 
+ 
+
+# Describe/configure the source 
+ a1.sources.r1.type = netcat 
+ a1.sources.r1.bind = localhost 
+ a1.sources.r1.port = 44444 
+ 
+
+ # Describe the sink 
+ a1.sinks.k1.type = logger 
+ 
+ 
+ # Use a channel which buffers events in memory 
+ a1.channels.c1.type = memory 
+ a1.channels.c1.capacity = 1000 
+ a1.channels.c1.transactionCapacity = 100 
+ 
+
+ # Bind the source and sink to the channel 
+ a1.sources.r1.channels = c1 
+ a1.sinks.k1.channel = c1 
+
+
+flume multiplex sink is that there are multiple channels and sinks::
+
+
+# flume-logger-hdfs.conf: Read data from logs and write it to both logger and hdfs
+# flume command to start the agent - flume-ng agent --name a1 --conf /home/dgadiraju/flume_example/example.conf --conf-file example.conf
+
+# Name the components on this agent
+a1.sources = logsource
+a1.sinks = loggersink hdfssink
+a1.channels = loggerchannel hdfschannel
+
+# Describe/configure the source
+a1.sources.logsource.type = exec
+a1.sources.logsource.command = tail -F /opt/gen_logs/logs/access.log
+
+# Describe the sink
+a1.sinks.loggersink.type = logger
+
+# Use a channel which buffers events in memory
+a1.channels.loggerchannel.type = memory
+a1.channels.loggerchannel.capacity = 1000
+a1.channels.loggerchannel.transactionCapacity = 100
+
+# Bind the source and sink to the channel
+a1.sources.logsource.channels = loggerchannel hdfschannel
+a1.sinks.loggersink.channel = loggerchannel
+
+#Describe the sink
+a1.sinks.hdfssink.type = hdfs
+a1.sinks.hdfssink.hdfs.path = hdfs://nn01.itversity.com:8020/user/dgadiraju/flume_example_%Y-%m-%d
+a1.sinks.hdfssink.hdfs.fileType = DataStream
+a1.sinks.hdfssink.hdfs.rollInterval = 120
+a1.sinks.hdfssink.hdfs.rollSize = 10485760
+a1.sinks.hdfssink.hdfs.rollCount = 30
+a1.sinks.hdfssink.hdfs.filePrefix = retail
+a1.sinks.hdfssink.hdfs.fileSuffix = .txt
+a1.sinks.hdfssink.hdfs.inUseSuffix = .tmp
+a1.sinks.hdfssink.hdfs.useLocalTimeStamp = true
+
+#Use a channel which buffers events in file for HDFS sink
+a1.channels.hdfschannel.type = file
+a1.channels.hdfschannel.capacity = 1000
+a1.channels.hdfschannel.transactionCapacity = 100
+a1.channels.hdfschannel.checkpointInterval = 300
+
+a1.sinks.hdfssink.channel = hdfschannel
+
+to KAFKA Channel::
+-------------------
+
+
+
+
+
+# kandf.conf: Flume and Kafka integration
+# Read streaming data from logs and push it to Kafka as sink
+
+# Name the components on this agent
+kandf.sources = logsource
+kandf.sinks = ksink
+kandf.channels = mchannel
+
+# Describe/configure the source
+kandf.sources.logsource.type = exec
+kandf.sources.logsource.command = tail -F /opt/gen_logs/logs/access.log
+
+# Describe the sink
+# Flume version is 1.5.2
+# Make sure all kafka related jar files are available under 
+# /usr/hdp/2.5.0.0-1245/flume/lib
+kandf.sinks.ksink.type = org.apache.flume.sink.kafka.KafkaSink
+kandf.sinks.ksink.brokerList = nn01.itversity.com:6667,nn02.itversity.com:6667,rm01.itversity.com:6667
+kandf.sinks.ksink.topic = kafkadg
+
+# Use a channel which buffers events in memory
+kandf.channels.mchannel.type = memory
+kandf.channels.mchannel.capacity = 1000
+kandf.channels.mchannel.transactionCapacity = 100
+
+# Bind the source and sink to the channel
+kandf.sources.logsource.channels = mchannel
+kandf.sinks.ksink.channel = mchannel
+
+# Once you start agent run consumer command from this gist
+# https://gist.github.com/dgadiraju/c4ed3195e563779e97a1658598269652
+
+//The brokers are used to control the topics.
+
+KAFKA Commands::
+----------------
+Every command of the kafka needs a zookeeper
+
+
+i) CD into Kafka folder
+
+cd kafka_2.10-0.8.2.2/
+
+ii) Start the zookeeper
+
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+iii)Start the kafka server (run below command in a new tab)
+
+bin/kafka-server-start.sh config/server.properties
+
+iv)Create topic (run below command in a new tab)
+
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic testtopic_new
+
+v)List topic
+
+bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+vi)Publish to kafka with producer (run below command in a new tab)
+
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic testtopic_new
+
+Now type some message here in the terminal.
+
+vii)Consumer from kafka (run below command in a new tab)
+
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic testtopic_new --from-beginning
+
+The message you write in producer will be reflected here on real time basis.
+
+------------------
+Spark-Streaming::
+-----------------
+

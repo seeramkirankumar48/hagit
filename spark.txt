@@ -1,0 +1,475 @@
+Spark::
+-------
+SPARK is an inmemory distributed cluster computing framework unlike mapreduce which is IO based.
+
+so,to process large datasets it needs lot of memory to store the dataset in memory,if there is no sufficient we can use the MR.
+
+Following are the different modules in Spark
+
+    Core Spark
+    Data Frames, Data Sets, SQL
+    Spark Streaming
+    MLLib
+    GraphX
+    Bagel
+    R
+
+
+library dependencies in sbt to include the spark core::
+libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2"
+
+
+to enter into the spark-shell::
+spark-shell
+
+
+By default, the spark-shell will create a spark context object with variable name as sc.
+
+to get all the list of the configurations of spark context ::
+
+sc.getConf.getAll.foreach(println)
+
+By default the spark context will launch in local mode::
+
+to launch the spark-shell in yarn mode::
+spark-shell --master yarn
+
+-->The spark shell by default launches an application master with specified executors on two worker nodes (By default).
+
+
+//whenever we want to launch a spark-shell of our own ip port::
+
+spark-shell --master yarn --conf spark.ui.port=56123
+
+
+//If we want to launch the spark-shell in the standalone mode::
+we need to start the start-master.sh
+we need to start the start-slave.sh spark://localhost:7077(pointing to the spark master)
+
+we need to launch the spark shell using::
+spark-shell --master spark://localhost:7077
+
+
+
+//If we want to stop the default spark context given by the spark-shell use::
+sc.stop
+
+//If we want to create a spark context object of our own::
+//before creatingg our own sparkcontext object we need to stop the existing spark context::
+sc.stop
+
+import org.apache.spark.{SparkConf,SparkContext}
+
+val conf=new SparkConf().setAppName("test").setMaster("yarn-client")
+
+val sc=org.apache.spark.SparkContext(conf)
+
+sc.getConf.getAll.foreach(println)
+//it will display the latest config values with app.name as "test"
+
+//If we want to launch the configuration to local then
+
+val conf=new SparkConf().setAppName("demo").setMaster("local")
+
+
+//Apart from reading a file using textFile we can also create a range say, 1 to million and pass it as an RDD.
+
+val r=(1 to 1000000)
+
+val rdd=sc.parallelize(r)
+
+this will parallelize the collection of the range 1 million to the inmemory structure in the cluster.
+
+if we apply any transformations such as::
+
+val count=rdd.filter(x=>x%2==0).count
+ 48  rdd.take(10).foreach(println)
+ 
+//It will show jobs in the spark UI Jobs. 
+
+ 49  val res=rdd.collect //If we want to transform the RDD Collection to an scala collection
+ 50  res.take(10).foreach(println) //This will not show in the spark based Jobs because it will not use the cluster. as it is an scala collection.
+ 
+ 
+//we'll use parallelize when we have a local file to process.
+
+//By default the files are read from the distributed filesystems::
+//If we want to read a file from the local file system then::
+import scala.collection.Source
+ 53  import scala.io.Source
+ 54  val fileName="/home/edureka/wordCount.txt"
+ 55  val lines=Source.fromFile(fileName).getLines
+
+//when we create a RDD by pointing an incorrect hdfs file, it will not fail because it will follow the lazy evaluation, it will fail only when an action or transformation is invoked on that particular RDD.
+
+val file=sc.textFile("/user/edureka/wordCount1.txt")
+ 66  file.take(10).foreach(println)
+
+//It will throw error because the take action is invoked.
+
+RDD:
+----
+stands for Resilient Distributed Datasets.
+
+//It is a distributed collection of objects stored in memory.So,If in a particular worker node is failed,It will relaunch the data only for that particular data.
+
+//we can generate an RDD in 2 ways::
+1.sc.parallelize
+2.sc.textFile
+
+After invoking these commands it will not create RDD immediately by loading data into memory
+It will only create DAG and the job will be submitted only when action is performed (will be covered later)
+
+
+-->A typical spark based applicaton may contain one or more Jobs.
+-->A job is nothing but tasks.
+-->each task will contain an transformation or an action.
+-->A job ends with action.
+
+Until actions are performed, Spark will not evaluate the program. Instead it will build some thing called DAG – Directed Acyclic Graph
+When action is performed, the application will run as per the DAG
+ 
+//If we want to save the file back to hdfs ::
+val file=sc.textFile("/user/edureka/wordCount.txt")
+ 69  file.saveAsTextFile("/user/edureka/wordCountDemo")
+ 
+Spark Actions::
+---------------
+Converting to Array & preview the Data:: take,collect,first,takeSample
+Aggregate::count,reduce
+Sorting and ranking:: top,takeOrdered
+saving::saveAsTextFile,saveAsSequenceFile
+
+//collect will convert the RDD into an array
+
+//collect is not recommended to use mostly because it will convert the RDD collection to the scala collection, If we are dealing with large amount of data and if we are using collect it will convert into the scala collection since this scala collection is not distributable it might provide the contention.
+
+//whenever we apply a foreach functon on a RDD it will try to run the function on the worker node it will not print on the stdout.
+
+val file=sc.textFile("/user/edureka/retail_db/orders/*");
+file.foreach(println)
+
+//so,whenever we want to loop through the elements we have to convert the collection to the scala types(If we use take,collect,first) it will be a scala collection and should iterate.
+
+takeOrdered::
+file.takeOrdered(2)(Ordering[Int].reverse.on(x=>x.split(",")(0).toInt)).foreach(println)
+
+
+Transformations::
+-----------------
+//Transformations are the ones which will define the logic to process the data
+    Transformations can be row level, aggregations, joins, set operations etc
+    mapping – map, flatMap, filter, mapPartitions
+    aggregate – reduceByKey, aggregateByKey, groupByKey
+    joins – join, leftOuterJoin, rightOuterJoin, cogroup, cartesian
+    sorting and ranking – sortByKey, groupByKey
+    set operations – union, intersection
+    controlling RDD partitions – coalesce, repartition
+	
+//the reduceByKey and aggregateByKey are used as a combiner.
+//use reduceByKey when the reduce logic and combiner logic are same.
+//use the aggregateByKey when the reduce and combiner logic are different
+//groupByKey doesn't use combiner logic thus it makes relatively slow for the aggregations.
+//any type of aggregations are possible with the groupByKey. mostly used for aggregation, sorting, ranking etc.
+//groupByKey will always produce the (key,Iterable[values])
+ex::(Int,Iterable[String])
+
+Joins::
+-------
+join(innerjoin)
+leftOuterJoin
+rightOuterJoin
+fullOuterJoin
+
+When two data sets of type (k, v) and (k, w) are joined, it will result in (k, (v, w))
+When two data sets of type (k, v) and (k, w) are grouped, it will result in (k, (Iterable[v], Iterable[w]))
+
+//Before joining these datasets should be in a key value pair.
+orders.join(orderitems)
+
+//cogroup
+cogroup will combine the collection in that particular collection and cogrouped collection 
+val rdd1 = sc.parallelize(Seq(
+     |                ("key1", 1),
+     |                ("key2", 2),
+     |                ("key1", 3)))
+rdd1: org.apache.spark.rdd.RDD[(String, Int)] = ParallelCollectionRDD[25] at parallelize at :21
+
+scala> val rdd2 = sc.parallelize(Seq(
+     |                ("key1", 5),
+     |                ("key2", 4)))
+rdd2: org.apache.spark.rdd.RDD[(String, Int)] = ParallelCollectionRDD[26] at parallelize at :21
+
+//cogroup() Example
+scala> val grouped = rdd1.cogroup(rdd2)
+grouped: org.apache.spark.rdd.RDD[(String, (Iterable[Int], Iterable[Int]))] = MapPartitionsRDD[28] at cogroup at :25
+
+//Result
+scala> grouped.collect()
+res10: Array[(String, (Iterable[Int], Iterable[Int]))] = Array((key1,(CompactBuffer(1, 3),CompactBuffer(5))), (key2,(CompactBuffer(2),CompactBuffer(4))))
+
+SetOperations::
+---------------
+union will get all the elements from both the data sets
+intersect will get all the elements common in both the data sets
+distinct will get all the distinct elements in a data set
+In case of union, it will not get distinct elements. Apply distinct, if you only want to get distinct elements after union.
+When we use set operations such as union and intersect, data should have similar structure
+Diff and complement are not available on top of RDDs
+
+products201312.intersection(products201401).count
+
+Sorting::
+---------
+sortByKey() //it will sort by the key
+sortBy() //we can pass the condition
+
+DataFrames::
+-------------
+Since most of the data is structured we can leverage on dataframes::
+Dataframes is a collection of complex objects stored in memory.
+//use is rather than taking the corespark apis and splitting the data which is error prone it is best to develop using the dataframes.
+
+//while defining the dataframe as an collection we need to specify the caseclass for that particular datasets.
+
+//A DataFrame can be converted to the RDD and viceversa is also possible.
+//The dependency needs to be added is ::
+libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.6.2"
+
+DataFrame operations::
+
+    printSchema
+    show
+    select
+    group
+    agg
+    sort
+    and many more
+
+To create a DataFrame::
+case class Orders(
+order_id:Int,order_date:String,order_customer_id:Int,order_status:String)
+
+val ordersDF=sc.textFile("/user/edureka/retail_db/orders/").map(x=>{val rec=x.split(",");
+Orders(rec(0).toInt,rec(1),rec(2).toInt,rec(3))}).toDF
+
+ordersDF: org.apache.spark.sql.DataFrame = [order_id: int, order_date: string, order_customer_id: int, order_status: string]
+
+//If we didn't mention it as toDF in the above line of code then it will be the RDD[Orders]
+//The Dataframes also follow the lazy evaluation like the RDD.
+
+ val ordersfilter=ordersDF.filter(ordersDF("order_status")==="COMPLETE").show
+ val ordersfilter=ordersDF.filter(ordersDF("order_status")==="COMPLETE").count
+ 
+//show will bydefault show the 20 rows.
+
+ordersfilter.show()
+ordersfilter.printSchema()
+ordersfilter.select(ordersfilter("order_id")).show
+
+//IF we want to apply some analytic functions in the context of native-sql::
+we have to convert the Dataframe into an temporary table::
+
+ordersDF.registerTempTable("tempord")
+sqlContext.sql("select count(1) from tempord").show
+
+sqlContext.sql("select count(1) from tempord where order_status='COMPLETE'").show()
+
+sqlContext.setConf("spark.sql.shuffle.partitions", "2") //It will set the no of partitions to 2
+
+val ordersFiltered = ordersDF.
+filter(ordersDF("order_status") === "COMPLETE")
+val ordersJoin = ordersFiltered.join(orderItemsDF,
+ordersFiltered("order_id") === orderItemsDF("order_item_order_id"))
+ordersJoin.
+groupBy("order_date").
+agg(sum("order_item_subtotal")).
+sort("order_date").
+rdd.
+saveAsTextFile(outputPath)
+
+
+------------------------------------------------
+case class Orders(
+order_id:Int,order_date:String,order_customer_id:Int,order_status:String)
+
+case class OrderItems(
+order_item_id:Int,order_item_order_id:Int,order_item_product_id:Int,
+order_item_quantity:Int,order_item_subtotal:Float,
+order_item_product_price:Float)
+
+sqlContext.setConf("spark.sql.shuffle.partitions", "2");
+
+val inputPath="/user/edureka/retail_db";
+val outputPath="/user/edureka/orderOP/";
+
+val ordersDF = sc.textFile(inputPath + "/orders").
+map(rec => {
+val a = rec.split(",")
+Orders(a(0).toInt, a(1).toString(), a(2).toInt, a(3).toString())
+}).toDF();
+
+val orderItemsDF = sc.textFile(inputPath + "/order_items").
+map(rec => {
+val a = rec.split(",")
+OrderItems(
+a(0).toInt,
+a(1).toInt,
+a(2).toInt,
+a(3).toInt,
+a(4).toFloat,
+a(5).toFloat)
+}).toDF();
+
+val ordersFiltered = ordersDF.
+filter(ordersDF("order_status") === "COMPLETE")
+val ordersJoin = ordersFiltered.join(orderItemsDF,
+ordersFiltered("order_id") === orderItemsDF("order_item_order_id"))
+ordersJoin.
+groupBy("order_date").
+agg(sum("order_item_subtotal")).
+sort("order_date").
+rdd.
+saveAsTextFile(outputPath)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+There are several transformation we can do in the spark with the help of map,filter,flatMap.
+
+flatMap::
+when we create a file wordCount
+CAT DEER RIVER
+RIVER BEAR DEER
+
+val file=sc.textFile("/user/edureka/wordCount.txt")
+ file.map(x=>x.split(" "))
+res5: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[4] at map at <console>:24
+
+//It will create an Array[String]
+//If we want to create only RDD[String] use flatMap
+val words=file.flatMap(x=>x.split(" ")).map(x=>(x,1)).groupByKey()
+
+Lifecycle of an application::
+-----------------------------
+
+    Read the data from file system (Create RDD)
+    Apply row level transformations
+    Join the data sets (if required)
+    Aggregate the data (if required)
+    Sort the data (if required)
+    Write the output back to file system
+
+//wordcount program in single line::
+
+sc.textFile("/user/edureka/wordCount.txt").flatMap(x=>x.split(" ")).map(x=>(x,1)).reduceByKey(_+_).collect.foreach(println)
+
+	
+Shuffle and Combiner::
+----------------------
+groupByKey,reduceByKey,aggregateByKey
+
+sc.textFile("/user/edureka/wordCount.txt").flatMap(x=>x.split(" ")).map(x=>(x,1)).groupByKey().map(m=>(m._1,m._2.size)).collect.foreach(println)
+
+
+
+Questions::
+-----------
+diff b/w spark standalone and local mode?
+scala currying functions?
+sort by string in string(asc and desc) in scala collection?
+various persistent levels of spark?
+launch the spark-shell in standalone mode?
+spark-aggregateByKey?
+Review the joins?
+
+
+
+
+
+
+---------------------------------------------------------------------------------
+
+
+
+sc.textFile("/user/edureka/wordCount.txt").flatMap(x=>x.split(" ")).map(x=>(x,1)).reduceByKey(_+_).collect.foreach(println)
+
+spark://master:7077
+
+spark-shell --master yarn --conf spark.ui.port=536121
+
+sqlContext.sql("select * from categories limit 10")
+
+http://10.0.2.15:56321
+
+hadoop fs -cp retail_db retail_db_hive
+
+
+case class Orders(
+order_id:Int,order_date:String,order_customer_id:Int,order_status:String)
+
+case class OrderItems(
+order_item_id:Int,order_item_order_id:Int,order_item_product_id:Int,
+order_item_quantity:Int,order_item_subtotal:Float,
+order_item_product_price:Float)
+
+sqlContext.setConf("spark.sql.shuffle.partitions", "2");
+
+val inputPath="/user/edureka/retail_db";
+val outputPath="/user/edureka/orderOP/";
+
+val ordersDF = sc.textFile(inputPath + "/orders").
+map(rec => {
+val a = rec.split(",")
+Orders(a(0).toInt, a(1).toString(), a(2).toInt, a(3).toString())
+}).toDF();
+
+val orderItemsDF = sc.textFile(inputPath + "/order_items").
+map(rec => {
+val a = rec.split(",")
+OrderItems(
+a(0).toInt,
+a(1).toInt,
+a(2).toInt,
+a(3).toInt,
+a(4).toFloat,
+a(5).toFloat)
+}).toDF();
+
+val ordersFiltered = ordersDF.
+filter(ordersDF("order_status") === "COMPLETE")
+val ordersJoin = ordersFiltered.join(orderItemsDF,
+ordersFiltered("order_id") === orderItemsDF("order_item_order_id"))
+ordersJoin.
+groupBy("order_date").
+agg(sum("order_item_subtotal")).
+sort("order_date").
+rdd.
+saveAsTextFile(outputPath)
+
+
+

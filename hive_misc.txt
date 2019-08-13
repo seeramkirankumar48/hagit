@@ -1,0 +1,14 @@
+1.update the record in the hive table
+//have to install the latest stable version of hive
+2.what is skewing of data?
+3.different file formats and which is the best file formats
+4.hive index?
+5.what is serde?
+6.hive udfs
+7.how to store documents(pdfs and word docs) in hive?
+8.what is tez mode?
+9.what is thrift server?(done)
+10.setup tez on hive
+11.hive udf with complex API(generic udf)
+12.hive indexing
+

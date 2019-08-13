@@ -1,0 +1,136 @@
+In linux there are 3 types of users are there::
+1.super user(root)
+//to install software perform any administrative tasks
+2.regular user
+//all the regular profiles are created under the home directory
+3.service user
+//different s/w's can run with the different service user permissions.
+
+-->In linux we can have 2 files with same name provided those  two have different case names.
+ex::test,Test
+
+-->when there are 2 regular user profiles in home directory you cannot access the other user profile,In order to access this you can use su command
+su--super user
+
+-->various directories in linux and what it does::
+
+/bin -- all the shell essential command binaries..
+/lib -- all the shell essential libraries
+/boot -- bootable files
+/root -- home directory for the root user
+/home -- home directory for the regular users.
+/sbin -- used for the administrative tasks.
+/var -- contains the system informations traces and logs.
+/proc -- contains the process
+/dev -- device files
+/etc -- all the configuration informations
+/usr/bin  -- non essential program files binaries.
+/usr/lib -- non essential program files libraries.
+/opt -- program files that do not obey the standard file system hierrarchy.
+
+while logging in it will show the terminal window as::
+user@host:~$
+
+: -- seperator
+~ -- home directory
+$ -- regular user
+# -- root user
+user-- username of the account
+host -- computer name
+
+to navigate to the home directory either user
+1.cd
+2.cd ~
+
+pwd--present working directory
+
+commands::
+----------
+ls :: to list all the files in the directory::
+use ls
+
+ls -R
+//used to list all the files in the current directory as well as in its subdirectory also.
+
+ls -l
+//to list the detailed information of the files 
+drwxrwxr-x.  5 edureka edureka 4096 Oct  1  2014 hbase\
+
+ls -a
+//to view the hidden files
+//all the hidden files starts with '.'
+
+cat 
+//the cat command is used to create a file,view its content, merging two files into a single file
+
+//to create a file
+cat > filename.txt
+
+//to exit after entering the content press ctrl+d
+
+//to merge two files in to a single file::
+cat test.txt test1.txt > sample.txt
+
+//to view the file contents::
+cat test.txt
+
+//to give the line numbers for the file
+cat -n test.txt
+
+mv::
+the move command is used to move the files from one directory to another directory
+
+ mv testing ../test1/
+
+//to rename the file also we can use the mv command
+mv testing test
+
+rm::
+the rm command is used to delete a specific file
+
+//rm test.txt
+removes the file with name test.txt
+
+//rm -r directory
+removes all the files in that particular directory,recursively
+
+mkdir::
+the mkdir command is used to create the directory
+
+mkdir directory
+
+//to create the multiple directories...
+mkdir d1 d2
+
+//to create the parent directory along with the child directory use
+mkdir -p d1/f1
+
+mkdir -p test/f1 test/f2
+
+rmdir::
+the rmdir is used to delete the directory
+rmdir d1
+
+man::
+the man is the manual or help for all the commands::
+
+man ls
+//gives the detailed description of ls command
+to exit from man command hit q
+
+history::
+it is used to show the history of the commands executed.
+
+//to clear the terminal window use ctrl+L
+
+
+
+
+create new user in git and upload all these files in that repo
+
+diff b/w sudo and su command?
+
+
+
+
+

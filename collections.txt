@@ -1,0 +1,64 @@
+Collections::
+-------------
+collections is a group of elements
+
+to represent group of elements we can use arrays but below are the limitations::
+1.arrays are fixed in size.
+2.hold only homogenous types of data
+3.can only accessed by index
+
+but performance wise, it is best to use the arrays than collections because,there is some fixed size in collection list whenever a new element is added a very huge list is created than the earlier list then all the elements are copied to the new list along with the new element and old reference will point to the newly created list.
+
+9 key interfaces of collections::
+---------------------------------
+1.Collection
+//group of entities represented as a single variable
+diff b/w collection and collections::
+collection is an interface and collections is an utility class.
+Ex:the arraylist doesn't provide the utility for sorting inorder to do that,we can use::
+ArrayList<Integer> arraylist=new ArrayList<Integer>();
+Collections.sort(arraylist);
+2.List
+//duplicates are preserved and insertion order is preserved.
+//it is the subtype of Collection Interface.
+                                                        
+                                                        Collection(I)
+                                                            |
+       -----------------------------------------------------------------------------------------------------------
+       |                                             |                                      |
+       List(I)                                     Set(I)                               Queue(I)
+       |                                            |                                     |
+-----------------------------                    ----------------                   ----------------
+|             |             |                    |              |                   |              |
+ArrayList   LinkedList    Vector                HashSet         SortedSet(I)      PriorityQueue  BlockingQueue
+                            |                    |              |                                 |
+                          Stack                LinkedHashSet    NavigableSet(I)                 1.PriorityBlockingQueue
+                                                                  |                             2.LinkedBlockingQueue
+                                                                 TreeSet
+
+
+
+
+
+
+
+
+
+3.Set::
+//where duplicates are not allowed and insertion order is not preserved.
+4.SortedSet::
+//where duplicates are not allowed but sorting is required
+5.NavigableSet::
+//it defines order (what is the previous and next elements).
+6.Queue
+//Processing in FIFO
+7.Map
+//represent an key-value pair
+//duplicate keys are not allowed but values can be duplicated.
+8.SortedMap
+9.NavigableMap
+
+
+//In TreeSet and TreeMap the heterogenous data is not allowed
+//Every Collection class by default implements Serializable and Cloneable.
+//ArrayList and vector implement RandomAccess(marker interface) in which if we are accessing 1st or 1 lakh element the performance will be same.

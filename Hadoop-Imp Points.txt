@@ -1,0 +1,87 @@
+1. There is no concept of data locality concept for reduce tasks.
+2.when a mapreduce job is submitted to the Rm there will be 3 types of counters will be generated which will let us know the statistics of the job.
+a.FileSystem Counters:
+	Number of bytes read
+	Number of bytes written
+b.Job counters:
+	Launched map tasks
+	Launched reduce tasks
+	data local map tasks
+c.mapreduce Framework:
+	map input records
+	map output records
+	reduce input records
+	reduce output records
+	combine input records
+	combine output records
+
+ex::File System Counters
+		FILE: Number of bytes read=2543845574
+		FILE: Number of bytes written=3826255597
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=726684326
+		HDFS: Number of bytes written=1263585345
+		HDFS: Number of read operations=21
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=6
+		Launched reduce tasks=1
+		Data-local map tasks=6
+		Total time spent by all maps in occupied slots (ms)=1565354
+		Total time spent by all reduces in occupied slots (ms)=382426
+	Map-Reduce Framework
+		Map input records=54525952
+		Map output records=54525952
+		Map output bytes=1162870784
+		Map output materialized bytes=1271922724
+		Input split bytes=678
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=54525952
+		Reduce shuffle bytes=1271922724
+		Reduce input records=54525952
+		Reduce output records=54525952
+		Spilled Records=163577856
+		Shuffled Maps =6
+		Failed Shuffles=0
+		Merged Map outputs=6
+		GC time elapsed (ms)=36151
+		CPU time spent (ms)=378470
+		Physical memory (bytes) snapshot=1260449792
+		Virtual memory (bytes) snapshot=2830237696
+		Total committed heap usage (bytes)=1055916032
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=726683648
+	File Output Format Counters 
+		Bytes Written=1263585345
+
+3.There are in total 5 configuration files::
+a.hadoop-env.sh
+sets the hadoop specific configuration files here.typically the java_home and other configurations such as HADOOP_HOME & HADOOP_CLASSPATH which are set in the bashrc file are used in this file.
+b.core-site.xml
+
+c.hdfs-site.xml
+d.mapred-site.xml
+e.yarn-site.xml
+
+
+
+	
+
+
+
+
+
+fsimg:4672
+edits:4676
+edits_inprogress:4677

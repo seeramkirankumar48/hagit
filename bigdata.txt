@@ -1,0 +1,65 @@
+Bigdata::
+---------
+big data is the data that cannot be processed using traditional software systems like(RDBMS).
+
+There are 3 factors to consider the data to be bigdata::
+1.volume(data size)
+2.variety(different types of data)
+3.velocity(how frequently the data is getting generated)
+4.veracity(uncertainity of data).
+
+why can't we process the data in the traditional RDBMS??
+In a realtime application such as bank application transactions we cant query the results from the DB because it should not be hangout in processing the analytic process rather than the customer requests.
+so in order to do this the developers will fetch the records from the DB using certain logic as follows::
+logic::
+transaction details-1(which can be triggered to fetch the data from the certain time period interval).
+and this data is pulled to the DataLake or to an central datawarehouse where the analytics are performed as there is no much impact on the bussiness side applications.
+
+As the datalake can store the data upto an certain limit and the maintainenance of the datalake is costly operation, it is likely to the similar operation of database as it will take huge time in processing the old transactional data.so it is not good for processing huge data in datawarehouse.
+
+so it is better to go for the distributed computing:: where the transaction data is splitted into the mutliple systems::
+1.here the data,say 1TB is splitted in 4 parts of (250GB) each and is deployed manually into the different RDBMS systems.
+Advantages::
+1.data can be processed distrubutedly.
+2.processing time can be reduced.
+disadvantages::
+1.cost is high as it requires multiple dbms.
+2.user has to manually divide the file and assign to the different systems and there is no file abstraction.
+3.the result from all the above 4 systems should be manually aggregated.
+4.If one system is down then there is no way of getting the results.
+5.multiple new systems should be incorporated if there is new incoming data.
+
+Inorder to overcome these problems hadoop is introduced which is used to store the large files in a distributed fashion on the commodity hardware.
+
+There are 5 phases totally,
+1.Ingestion(injecting the data in to the hadoop environment)--flume and sqoop
+2.Storage(Storing the data)--HDFS(batch processing) or HBASE(low latency data access)
+3.Processing(Computation on the data)--Mapreduce,HIVE,PIG
+4.Cluster Management(managing the cluster resources)--YARN
+5.Integration(workflow management)--Hcatalog,oozie,zookeeper
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

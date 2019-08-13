@@ -1,0 +1,3303 @@
+Imp points::
+------------
+-->In java, a boolean data type value cannot hold the integer value it holds only true or false.
+-->All the objects are stored in the Garbage-collectible heap. so if there are any unreferenced objects those are collected by the garbage collector.
+-->if there are 100 classes it is not that easy to deliver all the classes to the client(since misses can happen) so it is quite easy if we package them into a .jar file and specify the manifest file where the main method is.
+To Build the entire classes in the package the sbt(simple build tool) can be used.
+-->Arrays are always the objects whether they hold the primitive types or reference types.
+-->length is just a parameter in the Array.It is a method in String class.
+-->In java,we can save a file other than the className of that particular java file but it should not be decorated with public identifier
+Ex1::
+Sample.java is the file name where it contains two classes A,B
+class A{
+}
+class B{
+}
+you can compile as javac Sample.java
+but to know Class A,B you should run with java A || java B
+Note::for each class(even though in the same file there are multiple java classes), for every class an individual byte code for that particular class is generated.
+Ex2::
+consider a java file is saved with public identifier
+you should run and compile with that public identified file.
+
+var args::
+----------
+-->In java, a method can take variable number of arguments it is represented by three ellipses (...)
+public static void main(String...args){
+}
+
+Java variables::
+----------------
+-->There are 3 types of variables in java::
+1.local variables
+2.instance variables
+3.static variables
+
+Difference between local variables and instance variables::
+-----------------------------------------------------------
+a.Local variables::
+-----------------
+These are declared inside the method.
+Rule::
+------
+They should be initialized before usage.
+Reason::
+--------
+The reason being the local variables should be initialized before the usage is the user can call any method as there is no predefined criteria to call the methods. but if we specifically calling a method we intend to call that method only, so it is necessary to initialize.
+
+b.instance variables::
+--------------------
+These are declared inside the class.
+1.The instance variables can have the default values where as for the local variables they need to be initialized before the usage.
+-->The instance variables are need not be intitialized even though without initialization they have the default values::
+int - 0
+float - 0.0
+object(references) & string - null
+boolean - false
+
+--> There are 2 types of data types::
+1.primitive
+2.non-primitive(String,Array)
+
+-->Java follows unicode format.
+
+Operators::
+------------
+++,-- are called as unary operators.
+ternary operator::
+?:
+int min=(a<b)?a:b;
+
+Java loops::
+------------
+Infinite loops::
+-->while(true)
+-->Infinite for loop :: for(;;)
+-->do{
+    }while(true);
+    
+break and continue::
+--------------------
+-->The break statment will break out from the inner most loop and the continue statement is used to continue the loop skiping the current statement.
+
+
+-------------------------
+Disadvantages of Arrays::
+-------------------------
+1.Arrays cannot grow in size.
+2.Arrays are used to store the homogenous types of data.
+3.Arrays should always be used by the index.
+4.we have to specify the size while creating the array.
+
+we can create the array and initialize in same line using::
+String[] arr={"kiran","kumar","seeram"};
+or else in seperate lines using::
+String[] arr;
+arr=new String[]{"kiran","kumar","seeram"};
+
+//arr={"kiran","kumar","seeram"}; //throws C.T error illegal 
+
+int[] arr=new int[2]{1,2};//C.T error
+you cannot define the size of the array while initializing
+
+start of expression.
+-------------------
+Getters & setters::
+-------------------
+The getters & setters will not allow the instance variables to be exposed and they provide the validations to the fields before initialization it is a way of achieving encapsulation.
+1.All the instance variables are declared private and the getters and setters are provided with public access.
+Ex::
+-----
+public class MyClass {
+    public static void main(String args[]) {
+       Student stu=new Student();
+       stu.setsid(100);
+       System.out.println(stu.getSid());
+    }
+}
+class Student{
+    int sid;
+    //getter
+    public int getSid(){
+        return this.sid;
+    }
+    //setter
+    public void setsid(int id){
+        this.sid=id;
+    }
+}
+
+-----------------------------------------------------------
+
+== Operator::
+-------------
+the "==" operator is used to check whether two variables values are same or not and it is also used to check whether two reference variables are pointing to the same object or not. In order to compare the objects itself use the equals() method.
+
+-->The "Math" class is present in java.lang package. it also contains objects for Integer,Double,Float
+-->The ArrayList class present in the java.util package.
+-->the println statement(System.out.println()) is used from java.lang package under system class where out is the static variable of type PrintStream.
+-->The java.lang package is pre-imported into the program by default so that's why when we write System.out.println or Integer we shouldn't import these packages as these are already imported from java.lang package.
+
+
+Object::
+--------
+Each and every class implicitly extends the Object functionality::
+The main methods used are::
+1.boolean equals()
+2.Class getClass() //it is a final method hence cannot be overrided.
+3.int hashCode()
+4.String toString()
+5.Object clone() //protected method so it is present in the inheriting classes only.
+
+a.different ways to create the object::
+-------------------------------------
+By new keyword
+By newInstance() method
+By clone() method
+By deserialization
+By factory method etc.
+
+b.ways to initialize object::
+-----------------------------
+1.By reference variable
+s1.id=100;
+
+2.By method
+void insert(int i){
+id=i;
+}
+Student s1=new Student();
+s1.insert(100); //initialization using method "insert"
+
+3.By constructor
+Student s=new Student(100);
+
+c.Anonymous objects::
+---------------------
+new Calculation().fact(5) //suitable only in the driver program only one instance is needed if there is more than one instance it will not be easy to call the object by reference variable.
+
+d.Creating multiple objects by one type only::
+----------------------------------------------
+Rectangle r1=new Rectangle(), r2=new Rectangle();//creating two objects  
+int a=10, b=20;  
+
+Constructor::
+-------------
+Constructor is used to initialize the values to the objects.
+Rules::
+1.Constructor name must be same as className.
+2.Constructor must not have explicit return type.
+-->Even though if we didn't mention any constructor java implicitly provides the default constructor and provides the default values to the instance variables.but if we provide our own constructor then the default constructor doesn't exist.
+There are 2 types of constructors.
+1.Default constructor
+2.parameterized constructor.
+
+example that the default constructor initializes to default values::
+class Student{
+int sid;
+String sname;
+public void display(){
+System.out.println(sid+" "+sname); // the default constructor intializes to zero and null and it will be done implicitly.
+}
+public static void main(String[] args){
+Student s1=new Student();
+s1.display();
+}
+}
+
+
+//why default values are provided only to the instance,static variables but not for local variables::
+reason being when you create an object you may or may not know which method you are calling on that particular object,so if in that particular method you are using the instance variables there needs to be some initialization before usage so, the compiler provides the default values but when you create the local variables, you already know that the particular method is the only one you are calling so it is needed to be initialized before usage and hence compiler doesn't provide the default values.
+
+we can copy the values of one object to the another object by any of the below methods::
+1.By constructor
+ Student6(Student6 s){  
+    id = s.id;  
+    name =s.name;  
+    }  
+    Student6 s1 = new Student6(111,"Karan");  
+    Student6 s2 = new Student6(s1);
+2.By assigning the values of one object into another through reference variables
+ Student6 s1 = new Student6(111,"Karan");  
+ Student6 s2 = new Student6();
+ s2.id=s1.id;
+ s2.name=s2.name;
+3.By clone() method of Object class
+The object cloning is a way to create exact copy of an object. For this purpose, clone() method of Object class is used to clone an object.
+
+The java.lang.Cloneable interface must be implemented by the class whose object clone we want to create. If we don't implement Cloneable interface, clone() method generates CloneNotSupportedException.
+
+The clone() method is defined in the Object class. Syntax of the clone() method is as follows:
+
+protected Object clone() throws CloneNotSupportedException  
+
+Why use clone() method ?
+
+The clone() method saves the extra processing task for creating the exact copy of an object. If we perform it by using the new keyword, it will take a lot of processing to be performed that is why we use object cloning.
+
+ex::
+
+class Student18 implements Cloneable{  //should implement Cloneable interface in java.lang package
+int rollno;  
+String name;  
+  
+Student18(int rollno,String name){  
+this.rollno=rollno;  
+this.name=name;  
+}  
+  
+public Object clone()throws CloneNotSupportedException{  
+return super.clone();  
+}  
+  
+public static void main(String args[]){  
+try{  
+Student18 s1=new Student18(101,"amit");  
+  
+Student18 s2=(Student18)s1.clone();  
+  
+System.out.println(s1.rollno+" "+s1.name);  
+System.out.println(s2.rollno+" "+s2.name);  
+  
+}catch(CloneNotSupportedException c){}  
+  
+}  
+}  
+
+//Now both s1 and s2 contains the same values
+
+-->Constructors returns the value::yes, that is current class instance (You cannot use return type yet it returns a value).
+
+
+Static keyword::
+----------------
+-->The static keyword is mainly used for memory management in java.
+the static can be applied to the ::
+1.variable (also known as class variable)::
+-->The static variable can be used to refer the common property of all objects (that is not unique for each object) e.g. company name of employees,college name of students etc.
+-->The static variable gets memory only once in class area at the time of class loading.
+-->The static variables can't be created in the normal methods as well as static methods because the static variables are bound to the class level variables.
+-->The static variables contains the default values like instance variables.
+
+??how it will save the memory::
+suppose say a class:
+class Student{
+int sid;
+String sname;
+String college="ITU";
+public Student(int sid,String sname){
+this.sid=sid;
+this.sname=sname;
+}
+}
+public class Test{
+public static void main(String[] args){
+Student s1=new Student(1,"xxxxx");
+Student s2=new Student(2,"yyyyy");
+}
+}
+now, if we create 500 objects each object has the value college pointing to the string "ITU", now since this property is common to all the objects in the class so if we make it as static then there will be only one variable shared across to all the objects.
+
+IMP::static gets memory at the time of class loading.
+
+variables storage::
+the object reference variables(s1,s2) are stored on stack, the objects (Student(1,"xxxxx"),Student(2,"yyyyy")) are stored on garbage collectible Heap, and the static variable is stored in the ClassArea.
+
+
+2.method (also known as class method)::
+-->A static method belongs to the class rather than object of a class.
+-->A static method can be invoked without the need for creating an instance of a class.
+-->static method can access only the static data member and can change the value of it.
+-->Instance method can also change the value of the static member.
+restrictions for static method::
+-->The static method can not use non static data member or call non-static method directly.
+-->this and super cannot be used in static context.
+
+Q:why this and super keywords are not used in static context?
+A:this is used to represent the current class and super is used to represent the parent class Instance.where as static is used to refer the class level.
+
+3.block::
+There are two types of blocks::
+1.instance block
+2.static block
+
+static block::
+-->Is used to initialize the static data member.
+-->It is executed before main method at the time of classloading.
+
+instance block::
+-->It is used to run for each instance creation.
+
+ex::
+
+public class RFibonocci {
+	public static void main(String... args) {
+		Student s1=new Student();
+		
+	}
+}
+
+class Student{
+	String fname;
+	String lname;
+	static {
+		System.out.println("static block");
+	}
+	public void fun(){
+		System.out.println("fun method");
+	}
+	{
+		System.out.println("Instance method called");
+	}
+}
+
+
+
+nested class::
+--------------
+
+
+
+nested interface::
+------------------
+we can declare an interface as an member of a class or an interface it is called as nested interface.
+
+public class First implements A.IA{
+	public static void main(String args[]){  
+	    
+	    A.IA a=new First();
+	  } 	
+}
+
+class A {
+	interface IA {
+
+	}
+}
+
+//we can make nested interfaces as public,private,protected,default
+
+//If we want to make an interface with in an another interface that interface members need not be protected or private, because no access modifiers are allowed on the interface members.
+
+this keyword::
+--------------
+1.this can be used to refer current class instance variable.
+Student(int rollno,String name,float fee){  
+rollno=rollno;  
+name=name;  
+fee=fee;  
+}  
+//here the parameter name and instance names are same so that's why it returns the o/p as:: 0 null 0.0
+-->to distinguish from parameters with instance variables use::
+Student(int rollno,String name,float fee){  
+this.rollno=rollno;  
+this.name=name;  
+this.fee=fee;  
+}  
+-->if the parameter names and instance names are different then there is no need of this keyword
+Student(int rollno,String name,float fee){  
+Srollno=rollno;  
+Sname=name;  
+Sfee=fee;  
+}
+
+2.this can be used to invoke current class method (implicitly)
+
+class A{  
+void m(){System.out.println("hello m");}  
+void n(){  
+System.out.println("hello n");  
+//m();//same as this.m()  
+this.m();  
+}  
+}  
+class TestThis4{  
+public static void main(String args[]){  
+A a=new A();  
+a.n();  
+}}  
+
+3.this() can be used to invoke current class constructor.
+
+class A{  
+A(){System.out.println("hello a");}  
+A(int x){  
+this();  
+System.out.println(x);  
+}  
+}  
+class TestThis5{  
+public static void main(String args[]){  
+A a=new A(10);  
+}}  
+
+//the parameterized constructor is calling the default constructor.
+-->The real use of the this() is used for constructor chaining.
+class Student{  
+int rollno;  
+String name,course;  
+float fee;  
+Student(int rollno,String name,String course){  
+this.rollno=rollno;  
+this.name=name;  
+this.course=course;  
+}  
+Student(int rollno,String name,String course,float fee){  
+this(rollno,name,course);//reusing constructor  
+this.fee=fee;  
+}  
+void display(){System.out.println(rollno+" "+name+" "+course+" "+fee);}  
+}  
+class TestThis7{  
+public static void main(String args[]){  
+Student s1=new Student(111,"ankit","java");  
+Student s2=new Student(112,"sumit","java",6000f);  
+s1.display();  
+s2.display();  
+}}   
+
+Rule:: Call to this() must be the first statement in constructor.
+
+4.this can be passed as an argument in the method call.
+The this keyword can also be used as passing a parameter to the method.mainly, it is used in the event handling.
+class S2{  
+  void m(S2 obj){  
+  System.out.println("method is invoked");  
+  }  
+  void p(){  
+  m(this);  
+  }  
+  public static void main(String args[]){  
+  S2 s1 = new S2();  
+  s1.p();  
+  }  
+}  
+
+5.this can be passed as argument in the constructor call.
+We can pass the this keyword in the constructor also. It is useful if we have to use one object in multiple classes.
+class B{  
+  A4 obj;  
+  B(A4 obj){  
+    this.obj=obj;  
+  }  
+  void display(){  
+    System.out.println(obj.data);//using data member of A4 class  
+  }  
+}  
+  
+class A4{  
+  int data=10;  
+  A4(){  
+   B b=new B(this);  
+   b.display();  
+  }  
+  public static void main(String args[]){  
+   A4 a=new A4();  
+  }  
+}  
+
+
+6.this can be used to return the current class instance from the method.
+-->We can return this keyword as an statement from the method. In such case, return type of the method must be the class type.
+class A{  
+A getA(){  
+return this;  
+}  
+void msg(){System.out.println("Hello java");}  
+}  
+class Test1{  
+public static void main(String args[]){  
+new A().getA().msg();  
+}  
+}  
+
+-->To prove that this keyword always point to the current instance.
+
+public class MyClass {
+    public void m(){
+        System.out.println(this);
+    }
+  public static void main(String[] args){
+      MyClass c=new MyClass();
+      System.out.println(c);
+      c.m();
+      
+  }
+}
+
+
+ArrayLists::
+------------
+1.While creation of ArrayList we need not specify any size.
+
+ArrayList<String> arr=new ArrayList<String>();
+ArrayList can grow or sink in size.
+
+2.unlike in array's we don't use [] to get the element.
+3.ArrayList accepts only Reference types and wrapping or unwrapping is automatically done by the compiler itself.
+ArrayList<Integer> arr=new ArrayList<Integer>();
+
+-->The ArrayList is present in java.util package
+
+
+-->In java it is always pass by value only.
+
+Inheritance::
+-------------
+-->A base class is called superclass and the class which is inheriting that is called subclass.
+-->A subclass can inherit all the methods and instance variables from the super class.
+-->If a subclass has its own functionality then it can override the base class methods.(the instance variables of the super class are cannot be overridden).
+-->In an inheritance structure "the lowest one wins".
+Ex:Consider the inheritance structure::(Wolf->Canine->Animal)=>first it will check for the methods in the wolf if it is not there then it will check in the Canine or else it will call the method from Animal.
+1.IS-A vs HAS-A relationship::
+------------------------------
+IS-A ex::(Surgeon extends Doctor) is a specialized component of Doctor.
+HAS-A ex::classes (Tub,Sink) the Bathroom class has (Tub,Sink) i.e., the class Bathroom has components of both Tub and Sink.
+class Bathroom{
+Tub tub;
+Sink sink;
+}
+-->To know if you've designed your types correctly, ask "Does it make sense to say type X is-a type Y".
+-->Inheritance is an "IS-A" relationship.
+-->Triangle is a shape but the reverse (shape is a Triangle is not true) so inheritance always allows in only one direction.
+-->if X IS-A Y (x->y) then X can do all the things that Y can do.
+
+2.common scenarios::
+--------------------
+a.what if the superclass wants to invoke the methods from subclass??
+-->the parent class cannot know about any of the child classes,but during the creation of the child class it must know the which parent class it is inheriting.so , the parent class cannot invoke the methods from child.
+
+b.what if the subclass want to invoke bothe superclass version and its own version of the methods?? 
+-->you can invoke the super class method by super.method()
+
+-->The parent class may decide which fields or methods that a child class can inherit by providing the Access levels::
+public,private,protected,default
+-->we can override the parent class methods in the child class by mentioning the parameter called::@Override
+
+Types of Inheritance::
+---------------------
+1.single
+2.multiple
+3.hierrarichal
+4.multiple
+5.hybrid
+
+Polymorphism::
+--------------
+while creating the object, the object type and the reference type are same::
+Dog myDog=new Dog();
+but in polymorphims the object type and the reference type may not be same::
+Animal myDog=new Dog();
+so, in an inheritance relationship(IS-A), we can always reference the superclass type. 
+
+Method overriding::
+----------------------
+-->If subclass provides the specific implementation that is same as super class then it is called as Method Overriding.
+-->It is used to achieve runtime polymorphism.
+Rules::
+-------
+1.The method which is going to override must contain the same signature,same arguments and same name as in the parent class.
+2.the overrided method should not be less accessible.
+3.must be in an IS-A relationship.
+4.Return type must be same or covariant in method overriding.
+
+-->we cannot override static method because it is bound to the class where as the normal methods are bound to the instance level.so that means we cannot override the main method.It will be proved in runtime polymorphism.
+-->So that,we cannot override the main method also, since it is also a static method.
+public class MyClass {
+    public static void main(String args[]) {
+       Child p=new Child();
+       p.fun();
+    }
+}
+class Parent{
+    public void fun(){
+        System.out.println("Parent fun method");
+    }
+}
+class Child extends Parent{
+    protected void fun(){ //C.T error attempt to assing the weaker access previlages
+        System.out.println("Child fun method");
+    }
+}
+
+Java access modifiers with method overriding::
+----------------------------------------------
+If you are overriding any method, overridden method (i.e. declared in subclass) must not be more restrictive. else it will throw C.T error.
+
+class A{  
+protected void msg(){System.out.println("Hello java");}  
+}  
+  
+public class Simple extends A{  
+void msg(){System.out.println("Hello java");}//C.T.Error  
+ public static void main(String args[]){  
+   Simple obj=new Simple();  
+   obj.msg();  
+   }  
+}  
+
+The default modifier is more restrictive than protected. That is why there is compile time error.
+
+
+Rules for Overloading::
+-----------------------
+-->Overloading is such that with same name we can define multiple functions:it improves the readability of the program.
+there are 2 types in which method overloading is possible::
+a.by changing number of arguments
+b.by changing the data type
+
+void Add(int a,int b)
+void Add(int a,int b,int c)
+//two methods with the same Name "Add" but with different number or type of arguments is called method overloading.
+
+
+1.In java, method overloading is not possible by changing the return type of the method only because of ambiguity.
+
+-->Method overloading is not possible by changing the return type of the method.
+class Adder{  
+static int add(int a,int b){return a+b;}  
+static double add(int a,int b){return a+b;}  
+}  
+class TestOverloading3{  
+public static void main(String[] args){  
+System.out.println(Adder.add(11,11));//ambiguity  to call which add method
+}}  
+
+-->We can overload the main method in the java program.but the jvm will look for static main method with string[] arguments as parameter.
+
+Type Promotions::
+-----------------
+int-->float,long,double
+char-->int
+byte-->short,int
+short-->int
+long-->float,double
+float-->double
+
+Example of method overloading with type promotion::
+
+class OverloadingCalculation1{  
+  void sum(int a,long b){System.out.println(a+b);}  
+  void sum(int a,int b,int c){System.out.println(a+b+c);}  
+  
+  public static void main(String args[]){  
+  OverloadingCalculation1 obj=new OverloadingCalculation1();  
+  obj.sum(20,20);//now second int literal will be promoted to long  
+  obj.sum(20,20,20);  
+  
+  }  
+}  
+
+-->If there are matching type arguments in the method, type promotion is not performed..
+class OverloadingCalculation2{  
+  void sum(int a,int b){System.out.println("int arg method invoked");}  
+  void sum(long a,long b){System.out.println("long arg method invoked");}  
+  
+  public static void main(String args[]){  
+  OverloadingCalculation2 obj=new OverloadingCalculation2();  
+  obj.sum(20,20);//now int arg sum() method gets invoked  since they are matched with the the type of args.
+  }  
+}  
+
+-->If there are no matching type arguments in the method, and each method promotes similar number of arguments, there will be ambiguity.
+class OverloadingCalculation3{  
+  void sum(int a,long b){System.out.println("a method invoked");}  
+  void sum(long a,int b){System.out.println("b method invoked");}  
+  
+  public static void main(String args[]){  
+  OverloadingCalculation3 obj=new OverloadingCalculation3();  
+  obj.sum(20,20);//now ambiguity throws C.T error.
+  }  
+}  
+
+Inheritance::
+-------------
+inheritance is used to achieve code reusability.
+1.single.
+2.multilevel
+3.hierrarichal
+4.multiple
+multiple inheritance is such that there would two or more classes(super classes) and a subclass deriving from that super classes.
+multiple inheritance is not supported in java.it is supported with interfaces.
+ex::
+class A{  
+void msg(){System.out.println("Hello");}  
+}  
+class B{  
+void msg(){System.out.println("Welcome");}  
+}  
+class C extends A,B{//suppose if it were  
+   
+ Public Static void main(String args[]){  
+   C obj=new C();  
+   obj.msg();//Now which msg() method would be invoked?  throws c.t error
+}  
+}  
+
+
+Covariant Return Type::
+----------------------
+The covariant return type specifies that the return type may vary in the same direction as the subclass.
+
+Before Java5, it was not possible to override any method by changing the return type. But now, since Java5, it is possible to override method by changing the return type if subclass overrides any method whose return type is Non-Primitive but it changes its return type to subclass type. Let's take a simple example:
+
+class A{  
+A get(){return this;}  
+}  
+  
+class B1 extends A{  
+B1 get(){return this;}  
+void message(){System.out.println("welcome to covariant return type");}  
+  
+public static void main(String args[]){  
+new B1().get().message();  
+}  
+}  
+
+As you can see in the above example, the return type of the get() method of A class is A but the return type of the get() method of B class is B. Both methods have different return type but it is method overriding. This is known as covariant return type.
+
+super keyword::
+---------------
+super keyword is used to refer the immediate parent class object.
+Whenever you create the instance of subclass, an instance of parent class is created implicitly which is referred by super reference variable.
+uses::
+------
+It is used to invoke parent class constructor,instance variables,parent class methods.
+basically, it is used to differentiate the parent class instance variables or methods if they have the same name with the super class types.say suppose,
+class Parent{
+int i=10;
+}
+class Child{
+int i=20;
+public void display(){
+System.out.println(i) //prints Child class i
+System.out.println(super.i) // prints super class i
+}
+}
+
+//if you want to call i it will print only child class i variable only if we want to call the parent class variables also then we have to go for super. similar is for methods.
+
+1.super is used to refer immediate parent class instance variable::
+class Animal{  
+String color="white";  
+}  
+class Dog extends Animal{  
+String color="black";  
+void printColor(){  
+System.out.println(color);//prints color of Dog class  
+System.out.println(super.color);//prints color of Animal class  
+}  
+}  
+class TestSuper1{  
+public static void main(String args[]){  
+Dog d=new Dog();  
+d.printColor();  
+}}
+
+2.it is used to call the parent class method::
+class Animal{  
+void eat(){System.out.println("eating...");}  
+}  
+class Dog extends Animal{  
+void eat(){System.out.println("eating bread...");}  
+void bark(){System.out.println("barking...");}  
+void work(){  
+super.eat();  
+bark();  
+}  
+}  
+class TestSuper2{  
+public static void main(String args[]){  
+Dog d=new Dog();  
+d.work();  
+}}  
+
+3.It is used to call the parent class constructor.
+class Animal{  
+Animal(){System.out.println("animal is created");}  
+}  
+class Dog extends Animal{  
+Dog(){  
+super();  
+System.out.println("dog is created");  
+}  
+}  
+class TestSuper3{  
+public static void main(String args[]){  
+Dog d=new Dog();  
+}}  
+
+Note::super() is added in each class constructor automatically by compiler if there is no super() or this().
+      call to super must be first statement in constructor calling.
+
+Example:: For super is implicitly provided by the compiler itself
+
+class Animal{  
+Animal(){System.out.println("animal is created");}  
+}  
+class Dog extends Animal{  
+Dog(){  
+System.out.println("dog is created");  
+}  
+}  
+class TestSuper4{  
+public static void main(String args[]){  
+Dog d=new Dog();  
+}}  
+
+//prints ::
+animal is created
+dog is created
+
+Instance Initializer block::
+----------------------------
+The Instance initializer block is used to initialize the instance members.
+
+??what is the use of instance initializer block when we can initialize the members directly like::
+class Bike{  
+    int speed=100;  
+}  
+
+Suppose I have to perform some operations while assigning value to instance data member e.g. a for loop to fill a complex array or error handling etc.
+
+??What is invoked first, instance initializer block or constructor?
+
+class Bike8{  
+    int speed;  
+      
+    Bike8(){System.out.println("constructor is invoked");}  
+   
+    {System.out.println("instance initializer block invoked");}   //instance initializer block
+       
+    public static void main(String args[]){  
+    Bike8 b1=new Bike8();  
+    Bike8 b2=new Bike8();  
+    }      
+}  
+
+Output:instance initializer block invoked
+       constructor is invoked
+       instance initializer block invoked
+       constructor is invoked
+       
+In the above example, it seems that instance initializer block is firstly invoked but NO. Instance intializer block is invoked at the time of object creation. The java compiler copies the instance initializer block in the constructor after the first statement super(). So firstly, constructor is invoked.
+
+Rules::
+-------
+There are mainly three rules for the instance initializer block. They are as follows:
+1.The instance initializer block is created when instance of the class is created.
+2.The instance initializer block is invoked after the parent class constructor is invoked (i.e. after super() constructor call).
+3.The instance initializer block comes in the order in which they appear.
+
+Final Keyword::
+---------------
+the final keyword in java is used to restrict the user.
+the final can be applied to the ::
+1.Method
+2.class
+3.variable
+
+variable::
+once if it is initialized it cannot be changed.(not even in the constructor)
+final String color="RED";
+
+blank final variable::
+---------------------
+the final variables which are not initialized are called the blank final variables. they can be initialized only in the constructor and they cannot be modified anywhere.
+
+final String color;
+public Stu(){
+color="RED";
+}
+similarly there are static final blank variables they can be initialized only in the static block and cannot be modified anywhere.
+
+method::
+once, if a method is declared as final it cannot be overriden.
+
+class::
+once if a class is declared as final we cannot inherit it.
+
+Note::
+Q: Can we declare a constructor final?
+A: no,because constructor is never inherited.
+Q: Is final method inherited?
+A: Yes, final method is inherited but you cannot override it.
+ex:
+class Bike{  
+  final void run(){System.out.println("running...");}  
+}  
+class Honda2 extends Bike{  
+   public static void main(String args[]){  
+    new Honda2().run();  
+   }  
+}  
+
+Polymorphism::
+--------------
+Runtime polymorphism is decided at runtime.
+-->runtime polymorphism is not acheived with the data members
+package com.laboros.test;
+
+public class Sample {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Animal a = new Dog();
+		a.eat(); //prints the overrided method i.e Dog eat method
+		System.out.println(a.i); //as data members are not overloaded prints the parent class i variable
+	}
+
+}
+
+class Animal{
+	int i=10;
+	public void eat(){
+		System.out.println("Animal eating");
+	}
+}
+
+class Dog extends Animal{
+	int i=20;
+	public void eat(){
+		System.out.println("Dog eating");
+	}
+}
+
+
+Instance of::
+-------------
+The instance of operator is used to check whether a reference variable belongs to the particular object or not.
+
+class Test
+{
+}
+class Test1 extends Test
+{
+public static void main(String[] args)
+{
+Test1 test=new Test1();
+sysout(test instanceof Test1); //true
+sysout(test instanceof Test); //true
+sysout(test instanceof Object); //true
+
+Test1 test1=null;
+sysout(test1 instanceof Test1) //false
+}
+}
+
+
+whenever we used to check with some other class it will give C.T error.
+
+class Fun
+{
+}
+Test t1=new Test();
+sysout(t1 instanceof Fun); //c.T.error
+
+//the instanceof operator is used to check the object reference at compile time.
+to check at runtime isInstance() method is used::
+
+Integer i=new Integer(5);
+		System.out.println(Class.forName("java.lang.Integer").isInstance(i)); //true.
+
+
+but it should include the CheckedException:ClassNotFoundException
+		
+
+Abstract::
+----------
+A class that is declared with abstract keyword, is known as abstract class in java. It can have abstract and non-abstract methods (method with body).
+
+-->Abstraction is a process of hiding the implementation details and showing only functionality to the user
+
+Rules::
+-------
+1.Abstract class may contain the abstract methods and normal methods
+2.If a abstract class contains the abstract method then the class should be definetly mention the abstract keyword.
+3. If you are extending any abstract class that have abstract method, you must either provide the implementation of the method or make this class abstract.
+4.you cannot instantiate the abstract class.
+5.An abstract class can have data member, abstract method, method body, constructor and even main() method.
+
+program for 5th point::
+
+abstract class Bike{  
+  Bike(){System.out.println("bike is created");}  
+  abstract void run();  
+  void changeGear(){System.out.println("gear changed");}  
+}  
+ 
+class Honda extends Bike{  
+void run(){System.out.println("running safely..");}  
+ }  
+ class TestAbstraction2{  
+ public static void main(String args[]){  
+  Bike obj = new Honda();  
+  obj.run();  
+  obj.changeGear();  
+ }  
+}  
+  
+interfaces::
+------------
+An interface in java is a blueprint of a class. It has static constants and abstract methods.
+The interface in java is a mechanism to achieve abstraction. There can be only abstract methods in the java interface not method body. It is used to achieve abstraction and multiple inheritance in Java.
+Since Java 8, interface can have default and static methods 
+
+IMP::The java compiler adds public and abstract keywords before the interface method. More, it adds public, static and final keywords before data members.
+In other words, Interface fields are public, static and final by default, and methods are public and abstract.
+
+A class extends another class
+A class implements interface
+A interface extends another interface.
+
+ex::
+interface Bank{  
+float rateOfInterest();  
+}  
+class SBI implements Bank{  
+public float rateOfInterest(){return 9.15f;}  
+}  
+class PNB implements Bank{  
+public float rateOfInterest(){return 9.7f;}  
+}  
+class TestInterface2{  
+public static void main(String[] args){  
+Bank b=new SBI();  
+System.out.println("ROI: "+b.rateOfInterest());  
+}}  
+
+//ROI: 9.15
+
+multiple inheritance::
+----------------------
+
+interface Printable{  
+void print();  
+}  
+interface Showable{  
+void show();  
+}  
+class A7 implements Printable,Showable{  
+public void print(){System.out.println("Hello");}  
+public void show(){System.out.println("Welcome");}  
+  
+public static void main(String args[]){  
+A7 obj = new A7();  
+obj.print();  
+obj.show();  
+ }  
+}  
+
+Hello
+Welcome
+
+As implementation is provided by the implementation class hence there will be no ambiguity hence, multiple inheritance is possible with interfaces.
+
+Since Java 8, we can have method body in interface. But we need to make it default method. 
+the reason why the default method is provided is because, consider an interface in which it contains the method declarations for 5 methods and that particular interface is extended by 10 classes.say if tomorrow, if you need to add the method declaration for one more method in the interface you need to extend that functionality to all other subclasses which are inheriting from that particular interface so in order to provide the backward compatibility the default methods are provided.
+
+interface Drawable{  
+void draw();  
+default void msg(){System.out.println("default method");}  
+}  
+class Rectangle implements Drawable{  
+public void draw(){System.out.println("drawing rectangle");}  
+}  
+class TestInterfaceDefault{  
+public static void main(String args[]){  
+Drawable d=new Rectangle();  
+d.draw();  
+d.msg();  
+}}  
+
+what if in multiple inheritance if 2 interfaces provide the same default method so you have to override that particular method in the implementation class.
+
+interface IA{
+    default public void show(){
+        System.out.println("show method IA");
+    }
+}
+interface IB{
+    default public void show(){
+        System.out.println("show method IB");
+    }
+}
+class A implements IA,IB{
+    public void show(){
+        IA.super.show();
+    }
+}
+public class MyClass {
+    public static void main(String args[]) {
+      A a=new A();
+       a.show();
+    }
+}
+
+so what is the difference b/w abstract and interfaces if it is also providing the implemenations.
+1.Abstract class can have a constructor.
+2.Abstract classes are more structured and can hold a state.
+
+Since Java 8, we can have static method in interface. Let's see an example:
+
+interface Drawable{  
+void draw();  
+static int cube(int x){return x*x*x;}  
+}  
+class Rectangle implements Drawable{  
+public void draw(){System.out.println("drawing rectangle");}  
+}  
+  
+class TestInterfaceStatic{  
+public static void main(String args[]){  
+Drawable d=new Rectangle();  
+d.draw();  
+System.out.println(Drawable.cube(3));  
+}}  
+
+Tagged Interface::
+------------------
+An interface that have no member is known as marker or tagged interface. For example: Serializable, Cloneable, Remote etc. They are used to provide some essential information to the JVM so that JVM may perform some useful operation.
+
+public interface Serializable{  
+}  
+
+Nested Interface::
+------------------
+interface within an another interface.
+
+interface printable{  
+ void print();  
+ interface MessagePrintable{  
+   void msg();  
+ }  
+}  
+
+Package::
+---------
+A java package is a group of similar types of classes, interfaces and sub-packages.
+Advantage of Java Package
+
+1) Java package is used to categorize the classes and interfaces so that they can be easily maintained.
+
+2) Java package provides access protection.
+
+3) Java package removes naming collision.
+e.g. java.util and java.sql packages contain Date class.
+
+Note: If you import a package, subpackages will not be imported.
+The standard of defining package is domain.company.package e.g. com.javatpoint.bean or org.sssit.dao.
+
+ex::
+package com.javatpoint.core;  
+class Simple{  
+  public static void main(String args[]){  
+   System.out.println("Hello subpackage");  
+  }  
+}  
+ToRun::
+-------
+To Compile: javac -d . Simple.java
+To Run: java com.javatpoint.core.Simple
+
+to store the class file in differnt directory::
+javac -d c:\classes\Simple.java
+to execute::
+set classpath=c:\classes;
+java mpack.Simple
+ (or) 
+java -classpath c:\classes mypack.Simple
+
+Package class
+
+The package class provides methods to get information about the specification and implementation of a package. It provides methods such as getName(), getImplementationTitle(), getImplementationVendor(), getImplementationVersion() etc.
+
+ex::
+class PackageInfo{  
+public static void main(String args[]){  
+   
+Package p=Package.getPackage("java.lang");  
+  
+System.out.println("package name: "+p.getName());  
+  
+System.out.println("Specification Title: "+p.getSpecificationTitle());  
+System.out.println("Specification Vendor: "+p.getSpecificationVendor());  
+System.out.println("Specification Version: "+p.getSpecificationVersion());  
+  
+System.out.println("Implementaion Title: "+p.getImplementationTitle());  
+System.out.println("Implementation Vendor: "+p.getImplementationVendor());  
+System.out.println("Implementation Version: "+p.getImplementationVersion());  
+System.out.println("Is sealed: "+p.isSealed());  
+  
+  
+ }  
+}  
+
+o/p::
+-----
+package name: java.lang
+       Specification Title: Java Plateform API Specification
+       Specification Vendor: Sun Microsystems, Inc.
+       Specification Version: 1.6
+       Implemenation Title: Java Runtime Environment
+       Implemenation Vendor: Sun Microsystems, Inc.
+       Implemenation Version: 1.6.0_30
+       IS sealed: false
+       
+      
+AccessModifiers::
+----------------
+The access modifiers in java specifies accessibility (scope) of a data member, method, constructor or class.
+There are 4 types of java access modifiers:
+There are many non-access modifiers such as static, abstract, synchronized, native, volatile, transient etc
+
+a.private
+The private access modifier is accessible only within class.
+ex1::
+class A{  
+private int data=40;  
+private void msg(){System.out.println("Hello java");}  
+}  
+  
+public class Simple{  
+ public static void main(String args[]){  
+   A obj=new A();  
+   System.out.println(obj.data);//Compile Time Error  
+   obj.msg();//Compile Time Error  
+   }  
+}  
+ex2::
+class A{  
+private A(){}//private constructor  
+void msg(){System.out.println("Hello java");}  
+}  
+public class Simple{  
+ public static void main(String args[]){  
+   A obj=new A();//Compile Time Error  
+ }  
+}  
+
+Note: A class cannot be private or protected except nested class.
+
+b.default
+If you don't use any modifier, it is treated as default bydefault. The default modifier is accessible only within package.
+
+//save by A.java  
+package pack;  
+class A{  
+  void msg(){System.out.println("Hello");}  
+}
+
+//save by B.java  
+package mypack;  
+import pack.*;  
+class B{  
+  public static void main(String args[]){  
+   A obj = new A();//Compile Time Error  
+   obj.msg();//Compile Time Error  
+  }  
+}
+In the above example, the scope of class A and its method msg() is default so it cannot be accessed from outside the package.
+
+c.protected
+The protected access modifier is accessible within package and outside the package but through inheritance only.
+The protected access modifier can be applied on the data member, method and constructor. It can't be applied on the class.
+
+//save by A.java  
+package pack;  
+public class A{  
+protected void msg(){System.out.println("Hello");}  
+}  
+
+//save by B.java  
+package mypack;  
+import pack.*;  
+  
+class B extends A{   //through inheritance it is accessible
+  public static void main(String args[]){  
+   B obj = new B();  
+   obj.msg();  
+  }  
+}  
+
+o/p::Hello
+
+d.public
+it 's accessible anywhere.
+
+Array::
+-------
+Syntax to Declare an Array in java
+dataType[] arr; (or)  
+dataType []arr; (or)  
+dataType arr[]; 
+
+length is the property of array  
+
+int a[]=new int[5];//declaration and instantiation  
+a[0]=10;//initialization  
+a[1]=20;  
+a[2]=70;  
+a[3]=40;  
+a[4]=50;  
+
+int a[]={33,3,4,5};//declaration, instantiation and initialization 
+
+Passing array as a parameter to the method::
+
+class Testarray2{  
+static void min(int arr[]){  
+int min=arr[0];  
+for(int i=1;i<arr.length;i++)  
+ if(min>arr[i])  
+  min=arr[i];  
+  
+System.out.println(min);  
+}  
+  
+public static void main(String args[]){  
+  
+int a[]={33,3,4,5};  
+min(a);//passing array to method  
+  
+}}  
+
+Multidimensional Array:
+-----------------------
+dataType[][] arrayRefVar; (or)  
+dataType [][]arrayRefVar; (or)  
+dataType arrayRefVar[][]; (or)  
+dataType []arrayRefVar[];   
+
+int[][] arr=new int[3][3];//3 row and 3 column
+
+//declaring and initializing 2D array  
+int arr[][]={{1,2,3},{2,4,5},{4,4,5}};  
+
+for(int i=0;i<3;i++){  
+ for(int j=0;j<3;j++){  
+   System.out.print(arr[i][j]+" ");  
+ }  
+ System.out.println();  
+}  
+
+Copying a java array
+
+We can copy an array to another by the arraycopy method of System class.
+
+Syntax of arraycopy method
+
+public static void arraycopy(  
+Object src, int srcPos,Object dest, int destPos, int length  
+)  
+
+Wrapper Classes::
+-----------------
+The process of converting primitive types to object is called boxing.
+the process of converting object type to primitive types is called unboxing.
+
+boolean	Boolean
+char	Character
+byte	Byte
+short	Short
+int	Integer
+long	Long
+float	Float
+double	Double
+
+Wrapper class Example: Primitive to Wrapper
+
+public class WrapperExample1{  
+public static void main(String args[]){  
+//Converting int into Integer  
+int a=20;  
+Integer i=Integer.valueOf(a);//converting int into Integer  
+Integer j=a;//autoboxing, now compiler will write Integer.valueOf(a) internally  
+  
+System.out.println(a+" "+i+" "+j);  
+}}  
+Output:
+
+20 20 20
+
+Wrapper class Example: Wrapper to Primitive
+
+public class WrapperExample2{    
+public static void main(String args[]){    
+//Converting Integer to int    
+Integer a=new Integer(3);    
+int i=a.intValue();//converting Integer to int  
+int j=a;//unboxing, now compiler will write a.intValue() internally    
+    
+System.out.println(a+" "+i+" "+j);    
+}}    
+Output:
+
+3 3 3
+
+Call by value and call by reference::
+-------------------------------------
+In java everything is call by value only.
+
+Everyone says "no" as Java does not support pointers. No one actually see the address of the object in Java. No one can dream of call by reference without pointers with their experience of C/C++.
+
+Of course, they are very correct.
+
+In Java the method parameters can be primitive data types or object references. Both are passed as value only but small tricky explanation is here for object references. I repeat, when primitive data types are passed as method parameters, they are passed by value (a copy of the value) but incase of object references, the reference is copied (of course, here also a copy only) and passed to the called method. That is, object reference is passed as a value. So, original reference and the parameter copy both will refer the same Java object. As both refer the same object, if the calling method changes the value of its reference (passed from calling method), the original object value itself changes. Note that object itself is not passed, but it’s references is passed.
+
+
+ 
+Object reference is a handle to a Java object. Do not compare this reference term with the used in C/C++. In C/C++, the reference directly points to the memory address of a variable and can be used for pointer manipulations.
+
+IMP::Finally to say, in Java, everyone is passed by value. But with objecct, the value of the reference is passed.
+
+Let us see two programs on call by value and call by reference.
+
+Case 1: Call-by-value or Pass-by-value
+
+In the following program, a data type int is passed as parameter to a method call.
+
+
+public class CallByValue
+{
+  public void display(int y)
+  {
+    y = 20;
+  }
+  public static void main(String args[])
+  {
+    CallByValue cbv = new CallByValue();
+    int x = 10;
+    cbv.display(x);
+    System.out.println(x);                        // prints 10 and not 20    
+  }
+}  
+
+
+The variable x value 10 is passed to parameter of y of display() method. As copy of x is passed, changing y does not change x value in main() method.
+
+Case 2: Call by reference Java or Pass-by-reference
+
+Here, for display() method the reference of StringBuffer object is passed.
+
+
+public class CallByReference
+{
+  public void display(StringBuffer sb2)
+  {
+    sb2.append("World");
+    System.out.println(sb2);                       // prints HelloWorld
+  }
+  public static void main(String args[])
+  {
+    CallByReference cbr = new CallByReference();
+    StringBuffer sb1 = new StringBuffer("Hello");
+    cbr.display(sb1);
+    System.out.println(sb1);                       // prints HelloWorld
+  }
+}  
+The value of object reference sb1 is passed to sb2. sb1 literal value "Hello" is passed to sb2. Now sb1 reference and sb2 reference refer the same object. Changing sb2 affects sb1 also. Both sb1 and sb2 prints "HelloWorld".
+
+Strictfp::
+----------
+Java strictfp keyword ensures that you will get the same result on every platform if you perform operations in the floating-point variable. The precision may differ from platform to platform that is why java programming language have provided the strictfp keyword, so that you get same result on every platform. So, now you have better control over the floating-point arithmetic.
+
+Legal code for strictfp keyword::
+
+The strictfp keyword can be applied on methods, classes and interfaces.
+
+strictfp class A{}//strictfp applied on class  
+
+strictfp interface M{}//strictfp applied on interface  
+
+class A{  
+strictfp void m(){}//strictfp applied on method  
+}  
+
+Illegal code for strictfp keyword::
+
+The strictfp keyword cannot be applied on abstract methods, variables or constructors.
+since, all the interface methods are abstract by default so it is not possible to apply strictfp to the interface methods also.
+class B{  
+strictfp abstract void m();//Illegal combination of modifiers  
+}  
+class B{  
+strictfp int data=10;//modifier strictfp not allowed here  
+}  
+class B{  
+strictfp B(){}//modifier strictfp not allowed here  
+}  
+
+Java doc tool::
+---------------
+InOrder to create the documentation for the java classes it is used.
+
+First a class should be declared with the documentation comments.
+
+package com.abc;  
+/** This class is a user-defined class that contains one methods cube.*/  
+public class M{  
+  
+/** The cube method prints cube of the given number */  
+public static void  cube(int n){System.out.println(n*n*n);}  
+}  
+
+To create the document API, you need to use the javadoc tool followed by java file name. There is no need to compile the javafile.
+
+On the command prompt, you need to write:
+
+javadoc M.java
+to generate the document api. Now, there will be created a lot of html files. Open the index.html file to get the information about the classes.
+
+Command Line Arguments::
+------------------------
+The java command line arguments are used to pass the values to the program at runtime.
+
+class CommandLineExample{  
+public static void main(String args[]){  
+System.out.println("Your first argument is: "+args[0]);  
+}  
+}  
+compile by > javac CommandLineExample.java  
+run by > java CommandLineExample dfdfd
+
+//Your first argument is: dfdfd
+
+String::
+--------
+In java, string is basically an object that represents sequence of char values. An array of characters works same as java string. For example:
+
+char[] ch={'j','a','v','a','t','p','o','i','n','t'};  
+String s=new String(ch);  
+is same as:
+
+String s="javatpoint";  
+Java String class provides a lot of methods to perform operations on string such as compare(), concat(), equals(), split(), length(), replace(), compareTo(), intern(), substring() etc.
+
+IMP::The java.lang.String class implements Serializable, Comparable and CharSequence interfaces.
+
+CharSequence Interface
+
+The CharSequence interface is used to represent sequence of characters. It is implemented by String, StringBuffer and StringBuilder classes. It means, we can create string in java by using these 3 classes.
+
+The java String is immutable i.e. it cannot be changed. Whenever we change any string, a new instance is created. For mutable string, you can use StringBuffer and StringBuilder classes.
+
+in java, string is an object that represents a sequence of characters. The java.lang.String class is used to create string object.
+
+How to create String object?
+
+There are two ways to create String object:
+By string literal
+By new keyword
+1) String Literal
+
+Java String literal is created by using double quotes. For Example:
+
+String s="welcome";  
+Each time you create a string literal, the JVM checks the string constant pool first. If the string already exists in the pool, a reference to the pooled instance is returned. If string doesn't exist in the pool, a new string instance is created and placed in the pool. For example:
+
+String s1="Welcome";  
+String s2="Welcome";//will not create new instance  
+
+In the above example only one object will be created. Firstly JVM will not find any string object with the value "Welcome" in string constant pool, so it will create a new object. After that it will find the string with the value "Welcome" in the pool, it will not create new object but will return the reference to the same instance.
+
+Note: String objects are stored in a special memory area known as string constant pool.
+
+Why java uses concept of string literal?
+
+To make Java more memory efficient (because no new objects are created if it exists already in string constant pool).
+
+2) By new keyword
+
+String s=new String("Welcome");//creates two objects and one reference variable  
+In such case, JVM will create a new string object in normal(non pool) heap memory and the literal "Welcome" will be placed in the string constant pool. The variable s will refer to the object in heap(non pool).
+
+Java String Example
+
+public class StringExample{  
+public static void main(String args[]){  
+String s1="java";//creating string by java string literal  
+char ch[]={'s','t','r','i','n','g','s'};  
+String s2=new String(ch);//converting char array to string  
+String s3=new String("example");//creating java string by new keyword  
+System.out.println(s1);  
+System.out.println(s2);  
+System.out.println(s3);  
+}}  
+
+O/p::java
+strings
+example
+
+Immutable String in Java::
+
+In java, string objects are immutable. Immutable simply means unmodifiable or unchangeable.
+
+Once string object is created its data or state can't be changed but a new string object is created.
+
+Let's try to understand the immutability concept by the example given below:
+
+class Testimmutablestring{  
+ public static void main(String args[]){  
+   String s="Sachin";  
+   s.concat(" Tendulkar");//concat() method appends the string at the end  //doesn't throw C.T error it will in turn create an another //string variable Sachin Tendulkar but it is not referred by any of the variables
+   System.out.println(s);//will print Sachin because strings are immutable objects  
+ }  
+}  
+
+Output:Sachin
+Now it can be understood by the diagram given below. Here Sachin is not changed but a new object is created with sachintendulkar. That is why string is known as immutable.
+
+two objects are created but s reference variable still refers to "Sachin" not to "Sachin Tendulkar".
+
+But if we explicitely assign it to the reference variable, it will refer to "Sachin Tendulkar" object.For example:
+
+class Testimmutablestring1{  
+ public static void main(String args[]){  
+   String s="Sachin";  
+   s=s.concat(" Tendulkar");  
+   System.out.println(s);  
+ }  
+}  
+
+Output:Sachin Tendulkar
+In such case, s points to the "Sachin Tendulkar". Please notice that still sachin object is not modified.
+
+Why string objects are immutable in java?
+
+Because java uses the concept of string literal.Suppose there are 5 reference variables,all referes to one object "sachin".If one reference variable changes the value of the object, it will be affected to all the reference variables. That is why string objects are immutable in java.
+
+Java String compare::
+We can compare string in java on the basis of content and reference.
+
+It is used in authentication (by equals() method), sorting (by compareTo() method), reference matching (by == operator) etc.
+
+There are three ways to compare string in java:
+
+By equals() method
+By = = operator
+By compareTo() method
+1) String compare by equals() method
+
+The String equals() method compares the original content of the string. It compares values of string for equality. String class provides two methods:
+
+public boolean equals(Object another) compares this string to the specified object.
+public boolean equalsIgnoreCase(String another) compares this String to another string, ignoring case.
+class Teststringcomparison1{  
+ public static void main(String args[]){  
+   String s1="Sachin";  
+   String s2="Sachin";  
+   String s3=new String("Sachin");  
+   String s4="Saurav";  
+   System.out.println(s1.equals(s2));//true  
+   System.out.println(s1.equals(s3));//true  
+   System.out.println(s1.equals(s4));//false  
+ }  
+}  
+
+Output:true
+       true
+       false
+class Teststringcomparison2{  
+ public static void main(String args[]){  
+   String s1="Sachin";  
+   String s2="SACHIN";  
+  
+   System.out.println(s1.equals(s2));//false  
+   System.out.println(s1.equalsIgnoreCase(s2));//true  
+ }  
+}  
+
+Output:
+
+false
+true
+
+2) String compare by == operator
+
+The = = operator compares references not values.
+
+class Teststringcomparison3{  
+ public static void main(String args[]){  
+   String s1="Sachin";  
+   String s2="Sachin";  
+   String s3=new String("Sachin");  
+   System.out.println(s1==s2);//true (because both refer to same instance)  
+   System.out.println(s1==s3);//false(because s3 refers to instance created in nonpool)  
+ }  
+}  
+
+Output:true
+       false
+3) String compare by compareTo() method
+
+The String compareTo() method compares values lexicographically and returns an integer value that describes if first string is less than, equal to or greater than second string.
+
+Suppose s1 and s2 are two string variables. If:
+
+s1 == s2 :0
+s1 > s2   :positive value
+s1 < s2   :negative value
+class Teststringcomparison4{  
+ public static void main(String args[]){  
+   String s1="Sachin";  
+   String s2="Sachin";  
+   String s3="Ratan";  
+   System.out.println(s1.compareTo(s2));//0  
+   System.out.println(s1.compareTo(s3));//1(because s1>s3)  
+   System.out.println(s3.compareTo(s1));//-1(because s3 < s1 )  
+ }  
+}  
+
+Output:0
+       1
+       -1
+       
+String Concatenation in Java::
+
+In java, string concatenation forms a new string that is the combination of multiple strings. There are two ways to concat string in java:
+
+By + (string concatenation) operator
+By concat() method
+1) String Concatenation by + (string concatenation) operator
+
+Java string concatenation operator (+) is used to add strings. For Example:
+
+class TestStringConcatenation1{  
+ public static void main(String args[]){  
+   String s="Sachin"+" Tendulkar";  
+   System.out.println(s);//Sachin Tendulkar  
+ }  
+}  
+
+Output:Sachin Tendulkar
+
+IMP::
+----
+The Java compiler transforms above code to this:
+String s=(new StringBuilder()).append("Sachin").append(" Tendulkar).toString();  //So when using the + function it will append the Strings and the result is an of object type of String Builder.
+
+In java, String concatenation is implemented through the StringBuilder (or StringBuffer) class and its append method. String concatenation operator produces a new string by appending the second operand onto the end of the first operand. The string concatenation operator can concat not only string but primitive values also. For Example:
+
+class TestStringConcatenation2{  
+ public static void main(String args[]){  
+   String s=50+30+"Sachin"+40+40;  
+   System.out.println(s);//80Sachin4040  
+ }  
+}  
+
+80Sachin4040
+Note: After a string literal, all the + will be treated as string concatenation operator.
+
+2) String Concatenation by concat() method
+
+The String concat() method concatenates the specified string to the end of current string and returns the String object. 
+
+Syntax:
+
+public String concat(String another)  
+Let's see the example of String concat() method.
+
+class TestStringConcatenation3{  
+ public static void main(String args[]){  
+   String s1="Sachin ";  
+   String s2="Tendulkar";  
+   String s3=s1.concat(s2);  
+   System.out.println(s3);//Sachin Tendulkar  
+  }  
+}  
+
+Sachin Tendulkar
+
+Substring in Java::
+
+A part of string is called substring. In other words, substring is a subset of another string. In case of substring startIndex is inclusive and endIndex is exclusive.
+
+Note: Index starts from 0.
+
+You can get substring from the given string object by one of the two methods:
+
+public String substring(int startIndex): This method returns new String object containing the substring of the given string from specified startIndex (inclusive).
+public String substring(int startIndex, int endIndex): This method returns new String object containing the substring of the given string from specified startIndex to endIndex.
+In case of string:
+
+startIndex: inclusive
+endIndex: exclusive
+Let's understand the startIndex and endIndex by the code given below.
+
+String s="hello";  
+System.out.println(s.substring(0,2));//he  
+In the above substring, 0 points to h but 2 points to e (because end index is exclusive).
+
+Example of java substring
+
+public class TestSubstring{  
+ public static void main(String args[]){  
+   String s="SachinTendulkar";  
+   System.out.println(s.substring(6));//Tendulkar  
+   System.out.println(s.substring(0,6));//Sachin  
+ }  
+}  
+
+Tendulkar
+Sachin
+
+Java String class methods::
+
+The java.lang.String class provides a lot of methods to work on string. By the help of these methods, we can perform operations on string such as trimming, concatenating, converting, comparing, replacing strings etc.
+
+Java String is a powerful concept because everything is treated as a string if you submit any form in window based, web based or mobile application.
+
+Let's see the important methods of String class.
+
+Java String toUpperCase() and toLowerCase() method
+
+The java string toUpperCase() method converts this string into uppercase letter and string toLowerCase() method into lowercase letter.
+
+String s="Sachin";  
+System.out.println(s.toUpperCase());//SACHIN  
+System.out.println(s.toLowerCase());//sachin  
+System.out.println(s);//Sachin(no change in original)  
+
+SACHIN
+sachin
+Sachin
+
+Java String trim() method::
+
+The string trim() method eliminates white spaces before and after string.
+
+String s="  Sachin  ";  
+System.out.println(s);//  Sachin    
+System.out.println(s.trim());//Sachin  
+
+  Sachin  
+Sachin
+
+Java String startsWith() and endsWith() method::
+
+String s="Sachin";  
+ System.out.println(s.startsWith("Sa"));//true  
+ System.out.println(s.endsWith("n"));//true 
+
+true
+true
+
+Java String charAt() method::
+
+The string charAt() method returns a character at specified index.
+
+String s="Sachin";  
+System.out.println(s.charAt(0));//S  
+System.out.println(s.charAt(3));//h 
+
+S
+h
+
+Java String length() method::
+
+The string length() method returns length of the string.
+
+String s="Sachin";  
+System.out.println(s.length());//6  
+
+Java String intern() method::
+
+A pool of strings, initially empty, is maintained privately by the class String.
+
+When the intern method is invoked, if the pool already contains a string equal to this String object as determined by the equals(Object) method, then the string from the pool is returned. Otherwise, this String object is added to the pool and a reference to this String object is returned.
+
+String s=new String("Sachin");  
+String s2=s.intern();  
+System.out.println(s2);//Sachin  
+
+IMP::All literal strings and string-valued constant expressions are interned.
+
+
+Java String valueOf() method::
+
+The string valueOf() method coverts given type such as int, long, float, double, boolean, char and char array into string.
+
+int a=10;  
+String s=String.valueOf(a);  
+System.out.println(s+10);  
+Output:
+
+1010
+
+Java String replace() method::
+
+The string replace() method replaces all occurrence of first sequence of character with second sequence of character.
+
+String s1="Java is a programming language. Java is a platform. Java is an Island.";    
+String replaceString=s1.replace("Java","Kava");//replaces all occurrences of "Java" to "Kava"    
+System.out.println(replaceString);    
+Output:
+
+Kava is a programming language. Kava is a platform. Kava is an Island.
+
+Java StringBuffer class::
+
+Java StringBuffer class is used to create mutable (modifiable) string. The StringBuffer class in java is same as String class except it is mutable i.e. it can be changed.
+
+Note: Java StringBuffer class is thread-safe i.e. multiple threads cannot access it simultaneously. So it is safe and will result in an order.
+
+Important Constructors of StringBuffer class
+
+Constructor			Description
+StringBuffer()			creates an empty string buffer with the initial capacity of 16.
+StringBuffer(String str)	creates a string buffer with the specified string.
+StringBuffer(int capacity)	creates an empty string buffer with the specified capacity as length.
+
+What is mutable string
+
+A string that can be modified or changed is known as mutable string. StringBuffer and StringBuilder classes are used for creating mutable string.
+
+1) StringBuffer append() method
+
+The append() method concatenates the given argument with this string.
+
+class StringBufferExample{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer("Hello ");  
+sb.append("Java");//now original string is changed  
+System.out.println(sb);//prints Hello Java  
+}  
+}  
+2) StringBuffer insert() method
+
+The insert() method inserts the given string with this string at the given position.
+
+class StringBufferExample2{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer("Hello ");  
+sb.insert(1,"Java");//now original string is changed  
+System.out.println(sb);//prints HJavaello  
+}  
+}  
+3) StringBuffer replace() method
+
+The replace() method replaces the given string from the specified beginIndex and endIndex.
+
+class StringBufferExample3{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer("Hello");  
+sb.replace(1,3,"Java");  
+System.out.println(sb);//prints HJavalo  
+}  
+}  
+4) StringBuffer delete() method
+
+The delete() method of StringBuffer class deletes the string from the specified beginIndex to endIndex.
+
+class StringBufferExample4{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer("Hello");  
+sb.delete(1,3);  
+System.out.println(sb);//prints Hlo  
+}  
+}  
+5) StringBuffer reverse() method
+
+The reverse() method of StringBuilder class reverses the current string.
+
+class StringBufferExample5{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer("Hello");  
+sb.reverse();  
+System.out.println(sb);//prints olleH  
+}  
+}  
+6) StringBuffer capacity() method
+
+The capacity() method of StringBuffer class returns the current capacity of the buffer. The default capacity of the buffer is 16. If the number of character increases from its current capacity, it increases the capacity by (oldcapacity*2)+2. For example if your current capacity is 16, it will be (16*2)+2=34.
+
+class StringBufferExample6{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer();  
+System.out.println(sb.capacity());//default 16  
+sb.append("Hello");  
+System.out.println(sb.capacity());//now 16  
+sb.append("java is my favourite language");  
+System.out.println(sb.capacity());//now (16*2)+2=34 i.e (oldcapacity*2)+2  
+}  
+}  
+7) StringBuffer ensureCapacity() method
+
+The ensureCapacity() method of StringBuffer class ensures that the given capacity is the minimum to the current capacity. If it is greater than the current capacity, it increases the capacity by (oldcapacity*2)+2. For example if your current capacity is 16, it will be (16*2)+2=34.
+
+class StringBufferExample7{  
+public static void main(String args[]){  
+StringBuffer sb=new StringBuffer();  
+System.out.println(sb.capacity());//default 16  
+sb.append("Hello");  
+System.out.println(sb.capacity());//now 16  
+sb.append("java is my favourite language");  
+System.out.println(sb.capacity());//now (16*2)+2=34 i.e (oldcapacity*2)+2  
+sb.ensureCapacity(10);//now no change  
+System.out.println(sb.capacity());//now 34  
+sb.ensureCapacity(50);//now (34*2)+2  
+System.out.println(sb.capacity());//now 70  
+}  
+}  
+
+Java StringBuilder class::
+
+Java StringBuilder class is used to create mutable (modifiable) string. The Java StringBuilder class is same as StringBuffer class except that it is non-synchronized. It is available since JDK 1.5.
+
+Important Constructors of StringBuilder class
+
+Constructor			Description
+StringBuilder()			creates an empty string Builder with the initial capacity of 16.
+StringBuilder(String str)	creates a string Builder with the specified string.
+StringBuilder(int length)	creates an empty string Builder with the specified capacity as length.
+
+Java StringBuilder Examples
+
+Let's see the examples of different methods of StringBuilder class.
+
+1) StringBuilder append() method
+
+The StringBuilder append() method concatenates the given argument with this string.
+
+class StringBuilderExample{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder("Hello ");  
+sb.append("Java");//now original string is changed  
+System.out.println(sb);//prints Hello Java  
+}  
+}  
+2) StringBuilder insert() method
+
+The StringBuilder insert() method inserts the given string with this string at the given position.
+
+class StringBuilderExample2{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder("Hello ");  
+sb.insert(1,"Java");//now original string is changed  
+System.out.println(sb);//prints HJavaello  
+}  
+}  
+3) StringBuilder replace() method
+
+The StringBuilder replace() method replaces the given string from the specified beginIndex and endIndex.
+
+class StringBuilderExample3{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder("Hello");  
+sb.replace(1,3,"Java");  
+System.out.println(sb);//prints HJavalo  
+}  
+}  
+4) StringBuilder delete() method
+
+The delete() method of StringBuilder class deletes the string from the specified beginIndex to endIndex.
+
+class StringBuilderExample4{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder("Hello");  
+sb.delete(1,3);  
+System.out.println(sb);//prints Hlo  
+}  
+}  
+5) StringBuilder reverse() method
+
+The reverse() method of StringBuilder class reverses the current string.
+
+class StringBuilderExample5{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder("Hello");  
+sb.reverse();  
+System.out.println(sb);//prints olleH  
+}  
+}  
+6) StringBuilder capacity() method
+
+The capacity() method of StringBuilder class returns the current capacity of the Builder. The default capacity of the Builder is 16. If the number of character increases from its current capacity, it increases the capacity by (oldcapacity*2)+2. For example if your current capacity is 16, it will be (16*2)+2=34.
+
+class StringBuilderExample6{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder();  
+System.out.println(sb.capacity());//default 16  
+sb.append("Hello");  
+System.out.println(sb.capacity());//now 16  
+sb.append("java is my favourite language");  
+System.out.println(sb.capacity());//now (16*2)+2=34 i.e (oldcapacity*2)+2  
+}  
+}  
+7) StringBuilder ensureCapacity() method
+
+The ensureCapacity() method of StringBuilder class ensures that the given capacity is the minimum to the current capacity. If it is greater than the current capacity, it increases the capacity by (oldcapacity*2)+2. For example if your current capacity is 16, it will be (16*2)+2=34.
+
+class StringBuilderExample7{  
+public static void main(String args[]){  
+StringBuilder sb=new StringBuilder();  
+System.out.println(sb.capacity());//default 16  
+sb.append("Hello");  
+System.out.println(sb.capacity());//now 16  
+sb.append("java is my favourite language");  
+System.out.println(sb.capacity());//now (16*2)+2=34 i.e (oldcapacity*2)+2  
+sb.ensureCapacity(10);//now no change  
+System.out.println(sb.capacity());//now 34  
+sb.ensureCapacity(50);//now (34*2)+2  
+System.out.println(sb.capacity());//now 70  
+}  
+}  
+
+Difference between String and StringBuffer
+
+There are many differences between String and StringBuffer. A list of differences between String and StringBuffer are given below:
+
+No.	String						StringBuffer
+1)	String class is immutable.
+	StringBuffer class is mutable.
+2)	String is slow and consumes more memory when you concat too many strings because every time it creates new instance.			StringBuffer is fast and consumes less memory when you cancat strings.
+3)	String class overrides the equals() method of Object class. So you can compare the contents of two strings by equals() method.		StringBuffer class doesn't override the equals() method of Object class.
+
+Performance Test of String and StringBuffer
+
+public class ConcatTest{  
+    public static String concatWithString()    {  
+        String t = "Java";  
+        for (int i=0; i<10000; i++){  
+            t = t + "Tpoint";  
+        }  
+        return t;  
+    }  
+    public static String concatWithStringBuffer(){  
+        StringBuffer sb = new StringBuffer("Java");  
+        for (int i=0; i<10000; i++){  
+            sb.append("Tpoint");  
+        }  
+        return sb.toString();  
+    }  
+    public static void main(String[] args){  
+        long startTime = System.currentTimeMillis();  
+        concatWithString();  
+        System.out.println("Time taken by Concating with String: "+(System.currentTimeMillis()-startTime)+"ms");  
+        startTime = System.currentTimeMillis();  
+        concatWithStringBuffer();  
+        System.out.println("Time taken by Concating with  StringBuffer: "+(System.currentTimeMillis()-startTime)+"ms");  
+    }  
+}  
+Time taken by Concating with String: 578ms
+Time taken by Concating with  StringBuffer: 0ms
+String and StringBuffer HashCode Test
+
+As you can see in the program given below, String returns new hashcode value when you concat string but StringBuffer returns same.
+
+public class InstanceTest{  
+    public static void main(String args[]){  
+        System.out.println("Hashcode test of String:");  
+        String str="java";  
+        System.out.println(str.hashCode());  
+        str=str+"tpoint";  
+        System.out.println(str.hashCode());  
+   
+        System.out.println("Hashcode test of StringBuffer:");  
+        StringBuffer sb=new StringBuffer("java");  
+        System.out.println(sb.hashCode());  
+        sb.append("tpoint");  
+        System.out.println(sb.hashCode());  
+    }  
+}  
+Hashcode test of String:
+3254818
+229541438
+Hashcode test of StringBuffer:
+118352462
+118352462
+
+Difference between StringBuffer and StringBuilder::
+
+There are many differences between StringBuffer and StringBuilder. A list of differences between StringBuffer and StringBuilder are given below:
+
+No.	StringBuffer					StringBuilder
+1)	StringBuffer is synchronized i.e. thread safe. It means two threads can't call the methods of StringBuffer simultaneously.		StringBuilder is non-synchronized i.e. not thread safe. It means two threads can call the methods of StringBuilder 			simultaneously.
+2)	StringBuffer is less efficient than StringBuilder.	
+	StringBuilder is more efficient than StringBuffer.
+
+StringBuffer Example:
+
+public class BufferTest{  
+    public static void main(String[] args){  
+        StringBuffer buffer=new StringBuffer("hello");  
+        buffer.append("java");  
+        System.out.println(buffer);  
+    }  
+}  
+
+hellojava
+
+StringBuilder Example
+
+public class BuilderTest{  
+    public static void main(String[] args){  
+        StringBuilder builder=new StringBuilder("hello");  
+        builder.append("java");  
+        System.out.println(builder);  
+    }  
+}  
+hellojava
+Performance Test of StringBuffer and StringBuilder
+
+Let's see the code to check the performance of StringBuffer and StringBuilder classes.
+
+public class ConcatTest{  
+    public static void main(String[] args){  
+        long startTime = System.currentTimeMillis();  
+        StringBuffer sb = new StringBuffer("Java");  
+        for (int i=0; i<10000; i++){  
+            sb.append("Tpoint");  
+        }  
+        System.out.println("Time taken by StringBuffer: " + (System.currentTimeMillis() - startTime) + "ms");  
+        startTime = System.currentTimeMillis();  
+        StringBuilder sb2 = new StringBuilder("Java");  
+        for (int i=0; i<10000; i++){  
+            sb2.append("Tpoint");  
+        }  
+        System.out.println("Time taken by StringBuilder: " + (System.currentTimeMillis() - startTime) + "ms");  
+    }  
+}  
+Time taken by StringBuffer: 16ms
+Time taken by StringBuilder: 0ms
+
+How to create Immutable class?::
+
+There are many immutable classes like String, Boolean, Byte, Short, Integer, Long, Float, Double etc. In short, all the wrapper classes and String class is immutable. We can also create immutable class by creating final class that have final data members as the example given below:
+
+Example to create Immutable class
+
+In this example, we have created a final class named Employee. It have one final datamember, a parameterized constructor and getter method.
+public final class Employee{  
+final String pancardNumber;  
+  
+public Employee(String pancardNumber){  
+this.pancardNumber=pancardNumber;  
+}  
+  
+public String getPancardNumber(){  
+return pancardNumber;  
+}  
+  
+}  
+The above class is immutable because:
+
+The instance variable of the class is final i.e. we cannot change the value of it after creating an object.
+The class is final so we cannot create the subclass.
+There is no setter methods i.e. we have no option to change the value of the instance variable.
+These points makes this class as immutable.
+
+Java toString() method::
+
+If you want to represent any object as a string, toString() method comes into existence.
+
+The toString() method returns the string representation of the object.
+
+If you print any object, java compiler internally invokes the toString() method on the object. So overriding the toString() method, returns the desired output, it can be the state of an object etc. depends on your implementation.
+
+Advantage of Java toString() method
+
+By overriding the toString() method of the Object class, we can return values of the object, so we don't need to write much code.
+
+Understanding problem without toString() method
+
+Let's see the simple code that prints reference.
+
+class Student{  
+ int rollno;  
+ String name;  
+ String city;  
+  
+ Student(int rollno, String name, String city){  
+ this.rollno=rollno;  
+ this.name=name;  
+ this.city=city;  
+ }  
+  
+ public static void main(String args[]){  
+   Student s1=new Student(101,"Raj","lucknow");  
+   Student s2=new Student(102,"Vijay","ghaziabad");  
+     
+   System.out.println(s1);//compiler writes here s1.toString()  
+   System.out.println(s2);//compiler writes here s2.toString()  
+ }  
+}  
+Output:Student@1fee6fc
+       Student@1eed786
+As you can see in the above example, printing s1 and s2 prints the hashcode values of the objects but I want to print the values of these objects. Since java compiler internally calls toString() method, overriding this method will return the specified values. Let's understand it with the example given below:
+
+Example of Java toString() method
+
+Now let's see the real example of toString() method.
+
+class Student{  
+ int rollno;  
+ String name;  
+ String city;  
+  
+ Student(int rollno, String name, String city){  
+ this.rollno=rollno;  
+ this.name=name;  
+ this.city=city;  
+ }  
+   
+ public String toString(){//overriding the toString() method  
+  return rollno+" "+name+" "+city;  
+ }  
+ public static void main(String args[]){  
+   Student s1=new Student(101,"Raj","lucknow");  
+   Student s2=new Student(102,"Vijay","ghaziabad");  
+     
+   System.out.println(s1);//compiler writes here s1.toString()  
+   System.out.println(s2);//compiler writes here s2.toString()  
+ }  
+}  
+
+Output:101 Raj lucknow
+       102 Vijay ghaziabad
+       
+StringTokenizer in Java::
+The java.util.StringTokenizer class allows you to break a string into tokens. It is simple way to break string.
+
+It doesn't provide the facility to differentiate numbers, quoted strings, identifiers etc. like StreamTokenizer class. We will discuss about the StreamTokenizer class in I/O chapter.
+
+Constructors of StringTokenizer class
+
+There are 3 constructors defined in the StringTokenizer class.
+
+Simple example of StringTokenizer class
+
+Let's see the simple example of StringTokenizer class that tokenizes a string "my name is khan" on the basis of whitespace.
+
+import java.util.StringTokenizer;  
+public class Simple{  
+ public static void main(String args[]){  
+   StringTokenizer st = new StringTokenizer("my name is khan"," ");  
+     while (st.hasMoreTokens()) {  
+         System.out.println(st.nextToken());  
+     }  
+   }  
+}  
+Output:my
+       name
+       is
+       khan
+Example of nextToken(String delim) method of StringTokenizer class
+
+import java.util.*;  
+  
+public class Test {  
+   public static void main(String[] args) {  
+       StringTokenizer st = new StringTokenizer("my,name,is,khan");  
+        
+      // printing next token  
+      System.out.println("Next token is : " + st.nextToken(","));  
+   }      
+}  
+Output:Next token is : my
+StringTokenizer class is deprecated now. It is recommended to use split() method of String class or regex (Regular Expression).
+
+String handling functions::
+The java string format() method returns the formatted string by given locale, format and arguments.
+
+If you don't specify the locale in String.format() method, it uses default locale by calling Locale.getDefault() method.
+
+The format() method of java language is like sprintf() function in c language and printf() method of java language.
+
+public class FormatExample{  
+public static void main(String args[]){  
+String name="sonoo";  
+String sf1=String.format("name is %s",name);  
+String sf2=String.format("value is %f",32.33434);  
+String sf3=String.format("value is %32.12f",32.33434);//returns 12 char fractional part filling with 0  
+  
+System.out.println(sf1);  
+System.out.println(sf2);  
+System.out.println(sf3);  
+}}  
+
+name is sonoo
+value is 32.334340
+value is 32.334340000000
+
+Java String getBytes()::
+The java string getBytes() method returns the byte array of the string. In other words, it returns sequence of bytes.
+
+Java String getBytes() method example
+
+public class StringGetBytesExample{  
+public static void main(String args[]){  
+String s1="ABCDEFG";  
+byte[] barr=s1.getBytes();  
+for(int i=0;i<barr.length;i++){  
+System.out.println(barr[i]);  
+}  
+}}
+
+Test it Now
+Output:
+
+65
+66
+67
+68
+69
+70
+71
+
+Java String getChars()::
+
+The java string getChars() method copies the content of this string into specified char array. There are 4 arguments passed in getChars() method. The signature of getChars() method is given below:
+
+Signature:
+
+The signature or syntax of string getChars() method is given below:
+
+public void getChars(int srcBeginIndex, int srcEndIndex, char[] destination, int dstBeginIndex)  
+Returns
+
+It doesn't return any value.
+
+Throws:
+
+It throws StringIndexOutOfBoundsException if beginIndex is greater than endIndex.
+
+Java String getChars() method example
+
+public class StringGetCharsExample{  
+public static void main(String args[]){  
+ String str = new String("hello javatpoint how r u");  
+      char[] ch = new char[10];  
+      try{  
+         str.getChars(6, 16, ch, 0);  
+         System.out.println(ch);  
+      }catch(Exception ex){System.out.println(ex);}  
+}}  
+Test it Now
+Output:
+
+javatpoint
+
+Java String isEmpty::
+
+The java string isEmpty() method checks if this string is empty. It returns true, if length of string is 0 otherwise false.
+
+The isEmpty() method of String class is included in java string since JDK 1.6.
+
+Signature:
+
+The signature or syntax of string isEmpty() method is given below:
+
+public boolean isEmpty()  
+Returns
+
+true if length is 0 otherwise false.
+
+Since
+
+1.6
+
+Java String isEmpty() method example
+
+public class IsEmptyExample{  
+public static void main(String args[]){  
+String s1="";  
+String s2="javatpoint";  
+  
+System.out.println(s1.isEmpty());  
+System.out.println(s2.isEmpty());  
+}}  
+Test it Now
+true
+false
+
+Java String join::
+
+The java string join() method returns a string joined with given delimiter. In string join method, delimiter is copied for each elements.
+
+In case of null element, "null" is added. The join() method is included in java string since JDK 1.8.
+
+There are two types of join() methods in java string.
+
+Signature:
+
+The signature or syntax of string join method is given below:
+
+public static String join(CharSequence delimiter, CharSequence... elements)  
+and  
+public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements)  
+Parameters
+
+delimiter : char value to be added with each element
+
+elements : char value to be attached with delimiter
+
+Returns
+
+joined string with delimiter
+
+Throws
+
+NullPointerException if element or delimiter is null.
+
+Since
+
+1.8
+
+Java String join() method example
+
+public class StringJoinExample{  
+public static void main(String args[]){  
+String joinString1=String.join("-","welcome","to","javatpoint");  
+System.out.println(joinString1);  
+}}  
+Test it Now
+welcome-to-javatpoint
+
+Java String lastIndexOf::
+
+The java string lastIndexOf() method returns last index of the given character value or substring. If it is not found, it returns -1. The index counter starts from zero.
+
+Java String lastIndexOf() method example
+
+public class LastIndexOfExample{  
+public static void main(String args[]){  
+String s1="this is index of example";//there are 2 's' characters in this sentence  
+int index1=s1.lastIndexOf('s');//returns last index of 's' char value  
+System.out.println(index1);//6  
+}}  
+Output:
+
+6
+
+Java String replace::
+
+The java string replace() method returns a string replacing all the old char or CharSequence to new char or CharSequence.
+
+Since JDK 1.5, a new replace() method is introduced, allowing you to replace a sequence of char values.
+
+Signature:
+
+There are two type of replace methods in java string.
+
+public String replace(char oldChar, char newChar)  
+and  
+public String replace(CharSequence target, CharSequence replacement)  
+The second replace method is added since JDK 1.5.
+
+Parameters
+
+oldChar : old character
+
+newChar : new character
+
+target : target sequence of characters
+
+replacement : replacement sequence of characters
+
+Returns
+
+replaced string
+
+Java String replace(char old, char new) method example
+
+public class ReplaceExample1{  
+public static void main(String args[]){  
+String s1="javatpoint is a very good website";  
+String replaceString=s1.replace('a','e');//replaces all occurrences of 'a' to 'e'  
+System.out.println(replaceString);  
+}}  
+Test it Now
+jevetpoint is e very good website
+Java String replace(CharSequence target, CharSequence replacement) method example
+
+public class ReplaceExample2{  
+public static void main(String args[]){  
+String s1="my name is khan my name is java";  
+String replaceString=s1.replace("is","was");//replaces all occurrences of "is" to "was"  
+System.out.println(replaceString);  
+}}  
+Test it Now
+my name was khan my name was java
+
+
+Java String replaceAll::
+
+The java string replaceAll() method returns a string replacing all the sequence of characters matching regex and replacement string.
+
+Signature:
+
+public String replaceAll(String regex, String replacement)  
+Parameters
+
+regex : regular expression
+
+replacement : replacement sequence of characters
+
+Returns
+
+replaced string
+
+Java String replaceAll() example: replace character
+
+Let's see an example to replace all the occurrences of a single character.
+
+public class ReplaceAllExample1{  
+public static void main(String args[]){  
+String s1="javatpoint is a very good website";  
+String replaceString=s1.replaceAll("a","e");//replaces all occurrences of "a" to "e"  
+System.out.println(replaceString);  
+}}  
+jevetpoint is e very good website
+Java String replaceAll() example: replace word
+
+Let's see an example to replace all the occurrences of single word or set of words.
+
+public class ReplaceAllExample2{  
+public static void main(String args[]){  
+String s1="My name is Khan. My name is Bob. My name is Sonoo.";  
+String replaceString=s1.replaceAll("is","was");//replaces all occurrences of "is" to "was"  
+System.out.println(replaceString);  
+}}  
+My name was Khan. My name was Bob. My name was Sonoo.
+Java String replaceAll() example: remove white spaces
+
+Let's see an example to remove all the occurrences of white spaces.
+
+public class ReplaceAllExample3{  
+public static void main(String args[]){  
+String s1="My name is Khan. My name is Bob. My name is Sonoo.";  
+String replaceString=s1.replaceAll("\\s","");  
+System.out.println(replaceString);  
+}}  
+MynamewasKhan.MynamewasBob.MynamewasSonoo.
+
+Java String split::
+
+The java string split() method splits this string against given regular expression and returns a char array.
+
+Signature:
+
+There are two signature for split() method in java string.
+
+public String split(String regex)  
+and,  
+public String split(String regex, int limit)  
+Parameter
+
+regex : regular expression to be applied on string.
+
+limit : limit for the number of strings in array. If it is zero, it will returns all the strings matching regex.
+
+Returns
+
+array of strings
+
+Throws
+
+PatternSyntaxException if pattern for regular expression is invalid
+
+Since
+
+1.4
+
+Java String split() method example
+
+The given example returns total number of words in a string excluding space only. It also includes special characters.
+
+public class SplitExample{  
+public static void main(String args[]){  
+String s1="java string split method by javatpoint";  
+String[] words=s1.split("\\s");//splits the string based on whitespace  
+//using java foreach loop to print elements of string array  
+for(String w:words){  
+System.out.println(w);  
+}  
+}}  
+Test it Now
+java
+string
+split
+method
+by
+javatpoint
+Java String split() method with regex and length example
+
+public class SplitExample2{  
+public static void main(String args[]){  
+String s1="welcome to split world";  
+System.out.println("returning words:");  
+for(String w:s1.split("\\s",0)){  
+System.out.println(w);  
+}  
+System.out.println("returning words:");  
+for(String w:s1.split("\\s",1)){  
+System.out.println(w);  
+}  
+System.out.println("returning words:");  
+for(String w:s1.split("\\s",2)){  
+System.out.println(w);  
+}  
+  
+}}  
+Test it Now
+returning words:
+welcome 
+to 
+split 
+world
+returning words:
+welcome to split world
+returning words:
+welcome 
+to split world
+
+Java String valueOf::
+
+The java string valueOf() method converts different types of values into string. By the help of string valueOf() method, you can convert int to string, long to string, boolean to string, character to string, float to string, double to string, object to string and char array to string.
+
+Signature:
+
+The signature or syntax of string valueOf() method is given below:
+
+public static String valueOf(boolean b)  
+public static String valueOf(char c)  
+public static String valueOf(char[] c)  
+public static String valueOf(int i)  
+public static String valueOf(long l)  
+public static String valueOf(float f)  
+public static String valueOf(double d)  
+public static String valueOf(Object o)  
+Returns
+
+string representation of given value
+
+Java String valueOf() method example
+
+public class StringValueOfExample{  
+public static void main(String args[]){  
+int value=30;  
+String s1=String.valueOf(value);  
+System.out.println(s1+10);//concatenating string with 10  
+}}  
+Output:
+
+3010
+
+Exception Handling::
+--------------------
+
+
+  +-----------+
+		   | Throwable |
+                   +-----------+
+                    /         \
+		   /           \
+          +-------+          +-----------+
+          | Error |          | Exception |
+          +-------+          +-----------+
+	   /  |  \           / |        \
+         \________/	  \______/    	 \
+			                +------------------+
+	unchecked	 checked	| RuntimeException |
+					+------------------+
+					  /   |    |      \
+					 \_________________/
+					   
+					   unchecked
+Mainly there are 2 types of exceptions are there::
+1. checked -- which are caught at compile time.
+The classes that extend Throwable class except RuntimeException and Error are known as checked exceptions e.g.IOException, SQLException etc. Checked exceptions are checked at compile-time.
+2. un checked. -- which are caught at run time.
+The classes that extend RuntimeException are known as unchecked exceptions e.g. ArithmeticException, NullPointerException, ArrayIndexOutOfBoundsException etc. Unchecked exceptions are not checked at compile-time rather they are checked at runtime.
+
+-->Error
+Error is irrecoverable e.g. OutOfMemoryError, VirtualMachineError, AssertionError etc.
+
+try block::
+Java try block is used to enclose the code that might throw an exception. It must be used within the method.
+Java try block must be followed by either catch or finally block.
+
+Syntax of java try-catch
+
+try{  
+//code that may throw exception  
+}catch(Exception_class_Name ref){}  
+Syntax of try-finally block
+
+try{  
+//code that may throw exception  
+}finally{}  
+
+Java catch block::
+Java catch block is used to handle the Exception. It must be used after the try block only.
+You can use multiple catch block with a single try.
+
+Problem without exception handling
+
+Let's try to understand the problem if we don't use try-catch block.
+
+public class Testtrycatch1{  
+  public static void main(String args[]){  
+      int data=50/0;//may throw exception  
+      System.out.println("rest of the code...");  
+}  
+}  
+
+o/p::Exception in thread main java.lang.ArithmeticException:/ by zero
+
+As displayed in the above example, rest of the code is not executed (in such case, rest of the code... statement is not printed).
+
+There can be 100 lines of code after exception. So all the code after exception will not be executed.
+
+Solution by exception handling
+
+Let's see the solution of above problem by java try-catch block.
+
+public class Testtrycatch2{  
+  public static void main(String args[]){  
+   try{  
+      int data=50/0;  
+   }catch(ArithmeticException e){System.out.println(e);}  
+   System.out.println("rest of the code...");  
+}  
+}  
+
+Output:
+
+Exception in thread main java.lang.ArithmeticException:/ by zero
+rest of the code...
+Now, as displayed in the above example, rest of the code is executed i.e. rest of the code... statement is printed.
+
+Internal working of java try-catch block::
+
+The JVM firstly checks whether the exception is handled or not. If exception is not handled, JVM provides a default exception handler that performs the following tasks:
+
+Prints out exception description.
+Prints the stack trace (Hierarchy of methods where the exception occurred).
+Causes the program to terminate.
+But if exception is handled by the application programmer, normal flow of the application is maintained i.e. rest of the code is executed.
+
+Java catch multiple exceptions::
+
+If you have to perform different tasks at the occurrence of different Exceptions, use java multi catch block.
+
+Let's see a simple example of java multi-catch block.
+
+public class TestMultipleCatchBlock{  
+  public static void main(String args[]){  
+   try{  
+    int a[]=new int[5];  
+    a[5]=30/0;  
+   }  
+   catch(ArithmeticException e){System.out.println("task1 is completed");}  
+   catch(ArrayIndexOutOfBoundsException e){System.out.println("task 2 completed");}  
+   catch(Exception e){System.out.println("common task completed");}  
+  
+   System.out.println("rest of the code...");  
+ }  
+}  
+
+Output:task1 completed
+       rest of the code...
+       
+Rule: At a time only one Exception is occured and at a time only one catch block is executed.
+Rule: All catch blocks must be ordered from most specific to most general i.e. catch for ArithmeticException must come before catch for Exception.
+
+class TestMultipleCatchBlock1{  
+  public static void main(String args[]){  
+   try{  
+    int a[]=new int[5];  
+    a[5]=30/0;  
+   }  
+   catch(Exception e){System.out.println("common task completed");}  
+   catch(ArithmeticException e){System.out.println("task1 is completed");}  
+   catch(ArrayIndexOutOfBoundsException e){System.out.println("task 2 completed");}  
+   System.out.println("rest of the code...");  
+ }  
+}  
+
+Output:
+Compile-time error
+
+Java Nested try block::
+The try block within a try block is known as nested try block in java.
+
+Why use nested try block:
+Sometimes a situation may arise where a part of a block may cause one error and the entire block itself may cause another error. In such cases, exception handlers have to be nested.
+
+class Excep6{  
+ public static void main(String args[]){  
+  try{  
+    try{  
+     System.out.println("going to divide");  
+     int b =39/0;  
+    }catch(ArithmeticException e){System.out.println(e);}  
+   
+    try{  
+    int a[]=new int[5];  
+    a[5]=4;  
+    }catch(ArrayIndexOutOfBoundsException e){System.out.println(e);}  
+     
+    System.out.println("other statement);  
+  }catch(Exception e){System.out.println("handeled");}  
+  
+  System.out.println("normal flow..");  
+ }  
+}  
+
+o/p::going to divide
+java.lang.ArithmeticException: / by zero
+java.lang.ArrayIndexOutOfBoundsException: 5
+other statement
+normal flow..
+
+finally::
+Java finally block is a block that is used to execute important code such as closing connection, stream etc.
+
+Java finally block is always executed whether exception is handled or not.
+
+Java finally block follows try or catch block.
+
+Note: If you don't handle exception, before terminating the program, JVM executes finally block(if any).
+
+Why use java finally::
+Finally block in java can be used to put "cleanup" code such as closing a file, closing connection etc.
+
+Case 1
+
+Let's see the java finally example where exception doesn't occur.
+
+class TestFinallyBlock{  
+  public static void main(String args[]){  
+  try{  
+   int data=25/5;  
+   System.out.println(data);  
+  }  
+  catch(NullPointerException e){System.out.println(e);}  
+  finally{System.out.println("finally block is always executed");}  
+  System.out.println("rest of the code...");  
+  }  
+}  
+
+Output:5
+       finally block is always executed
+       rest of the code...
+Case 2
+
+Let's see the java finally example where exception occurs and not handled.
+
+class TestFinallyBlock1{  
+  public static void main(String args[]){  
+  try{  
+   int data=25/0;  
+   System.out.println(data);  
+  }  
+  catch(NullPointerException e){System.out.println(e);}  
+  finally{System.out.println("finally block is always executed");}  
+  System.out.println("rest of the code...");  
+  }  
+}  
+
+Output:finally block is always executed
+       Exception in thread main java.lang.ArithmeticException:/ by zero
+Case 3
+
+Let's see the java finally example where exception occurs and handled.
+
+public class TestFinallyBlock2{  
+  public static void main(String args[]){  
+  try{  
+   int data=25/0;  
+   System.out.println(data);  
+  }  
+  catch(ArithmeticException e){System.out.println(e);}  
+  finally{System.out.println("finally block is always executed");}  
+  System.out.println("rest of the code...");  
+  }  
+}  
+
+Output:Exception in thread main java.lang.ArithmeticException:/ by zero
+       finally block is always executed
+       rest of the code...
+
+Rule: For each try block there can be zero or more catch blocks, but only one finally block.
+
+Note: The finally block will not be executed if program exits(either by calling System.exit() or by causing a fatal error that causes the process to abort).
+
+throw::
+The Java throw keyword is used to explicitly throw an exception.
+
+We can throw either checked or uncheked exception in java by throw keyword. The throw keyword is mainly used to throw custom exception. We will see custom exceptions later.
+
+The syntax of java throw keyword is given below.
+
+throw exception;  
+Let's see the example of throw IOException.
+
+throw new IOException("sorry device error);  
+
+public class TestThrow1{  
+   static void validate(int age){  
+     if(age<18)  
+      throw new ArithmeticException("not valid");  
+     else  
+      System.out.println("welcome to vote");  
+   }  
+   public static void main(String args[]){  
+      validate(13);  
+      System.out.println("rest of the code...");  
+  }  
+}  
+
+Output:
+Exception in thread main java.lang.ArithmeticException:not valid
+
+if validate(19) then the output is as follows::
+//welcome to vote
+rest of the code...
+
+Exception Propagation::
+
+An exception is first thrown from the top of the stack and if it is not caught, it drops down the call stack to the previous method,If not caught there, the exception again drops down to the previous method, and so on until they are caught or until they reach the very bottom of the call stack.This is called exception propagation.
+Rule: By default Unchecked Exceptions are forwarded in calling chain (propagated).
+
+class TestExceptionPropagation1{  
+  void m(){  
+    int data=50/0;  
+  }  
+  void n(){  
+    m();  
+  }  
+  void p(){  
+   try{  
+    n();  
+   }catch(Exception e){System.out.println("exception handled");}  
+  }  
+  public static void main(String args[]){  
+   TestExceptionPropagation1 obj=new TestExceptionPropagation1();  
+   obj.p();  
+   System.out.println("normal flow...");  
+  }  
+}  
+
+Output:exception handled
+       normal flow...
+       
+In the above example exception occurs in m() method where it is not handled,so it is propagated to previous n() method where it is not handled, again it is propagated to p() method where exception is handled.
+
+Exception can be handled in any method in call stack either in main() method,p() method,n() method or m() method
+
+Rule: By default, Checked Exceptions are not forwarded in calling chain (propagated).
+
+Program which describes that checked exceptions are not propagated
+class TestExceptionPropagation2{  
+  void m(){  
+    throw new java.io.IOException("device error");//checked exception  
+  }  
+  void n(){  
+    m();  
+  }  
+  void p(){  
+   try{  
+    n();  
+   }catch(Exception e){System.out.println("exception handeled");}  
+  }  
+  public static void main(String args[]){  
+   TestExceptionPropagation2 obj=new TestExceptionPropagation2();  
+   obj.p();  
+   System.out.println("normal flow");  
+  }  
+}  
+
+Output:Compile Time Error
+
+public class TestExceptionPropagation1{  
+  void m(){  
+      try
+      {
+    int data=50/0;  
+      }
+      catch(Exception ex){
+          System.out.println("exception in m");
+      }
+  }  
+  void n(){  
+    m();  
+  }  
+  void p(){  
+   try{  
+    n();  
+   }catch(Exception e){System.out.println("exception handled");}  
+  }  
+  public static void main(String args[]){  
+   TestExceptionPropagation1 obj=new TestExceptionPropagation1();  
+   obj.p();  
+   System.out.println("normal flow...");  
+  }  
+}  
+
+exception in m
+normal flow...
+
+throws::
+
+
+
+
+
+
+
+
+//225
+
+ToCheck::
+---------
+1.what are the contents inside the jdk and jre folders.
+//jdk includes the development kit and jre includes the runtime environment which is needed to run the java applications specific to the OS.
+2.program to check::
+import java.util.*;
+public class MyClass {
+    static int n1=0,n2=1,n3=1;
+    public static void main(String args[]) {
+      System.out.println("Enter the fibo number:");
+      Scanner scr=new Scanner(System.in);
+      int number=scr.nextInt();
+      System.out.println(n1+"\n"+n2);
+      fibo(number-2);
+    }
+    public static void fibo(int count){
+        while(count>0){
+            System.out.println("Iteration number:"+count);
+            n3=n1+n2;
+            System.out.println(n3);
+            n1=n2;
+            n2=n3;
+           fibo(count-1);
+        }
+    }
+}
+//whenever there is an recursive you should not make that function in while loop because it make function the more iterative.so it is better to use the if condition.
+
+3.methods with same signature but differentiated with static and normal methods.
+
+//because when we are calling the method java doesn't know which method to call.
+
+public class Test
+{
+public static void main(String[] args)
+{
+
+}
+public void fun()
+{
+method(); //doesn't know whether to call static or normal method
+}
+public static void method()
+{
+}
+public void method()
+{
+}
+}
+4.constructor chaining.
+//chaining is possible with in the same class with "this" keyword and constructor chaining is possible in inheritance structure through "super" keyword
+5.what is default method?
+//suppose, if there is an interface, and if there are 100 classes which are inheriting that interface,and all those 100 classes needs to override the methods of that particular interface, suppose incase if there is an addition of new method to that particular interface, and again all those 100 classes needs to inherit the latest method,so it is quite cumbersome to do this it is implemented by default method.
+6.why the protected access modifier is not applied to the class?
+7.what is the difference between exception and error.?
+//exception can be both checked or unchecked. but error is that it can happen with no sufficient resources ex::StackOverflowError
+both error and exception are inherited from Throwable class.
+8.when to go for StringBuilder and StringBuffer?
+//when there is an appending of the string in the loop it is not recommended to use the string class since, string is an immutable class each and every time it is used to create the new string and this might will create lots of strings in the memory, so it is not recommended to use the String class. to implement this kind of features it is highly recommend to use the StringBuilder or StringBuffer.
+StringBuffer::StringBuffer is used when there is thread safety needed.
+StringBuilder::when there is no thread safety is needed it is recommended to use StringBuilder class.
+//Both(StringBuffer and StringBuilder) doesn't override the equals method.
+9.examine the code::
+public class TestExceptionPropagation1{  
+  
+  public static void main(String args[]){  
+    String x="a";
+    String xy=x+"b";
+    String ab="ab";
+    System.out.println(xy==ab); //it should return true but it returns false.
+  }  
+}  
+//since xy is compiled at runtime it will return false.
+10.java throw keyword?
+11.examine the code::
+i.
+public class TestExceptionPropagation1{  
+ 
+  public static void main(String args[]){  
+    String str="hello";
+    final String str1= "h";
+    final String str2="ell";
+    String str3=str1+str2+"o";
+    System.out.println(str==str3); //should return false
+  }  
+} 
+
+As str1 and str2 are c.T constants the expression str3 is evaluated at the compile time itself and since the string "hello" already exists in the constant pool.the new string also points out to the existing string object.
+so,str==str3 returns true.
+
+ii.
+ String str="hello";
+	    String str1= "h";
+	    String str2="ell";
+	    String str3=str1+str2+"o";
+	    System.out.println(str==str3);
+
+//As these are not final string constants and these are string literals these are created in the string constant pool and the "+" operation will create the string in the heap area. so str==str3 returns false.
+ 
+12.examine the code::
+import java.util.Scanner;
+
+public class RFibonocci{
+    static int n1=0,n2=1,count;
+    public RFibonocci(){
+        System.out.println("Enter the fibo series:");
+        Scanner scr=new Scanner(System.in);
+        count=scr.nextInt();
+        System.out.println("Series is:");
+        System.out.println(n1+"\n"+n2);
+        fibo(count-2);
+    }
+    public static void fibo(int count){
+        while(count>0){
+            int n3=n1+n2;
+            System.out.println(n3);
+            n1=n2;
+            n2=n3;
+            count-=1;
+            fibo(count);
+        }
+    }
+    public static void main(String...args){
+        new RFibonocci();
+    }
+    
+}
+
+//whenever there is an recursive you should not make that function in while loop because it make function the more iterative.so it is better to use the if condition.
+
+13.Nested Interfaces //geeksforgeeks
+14.instance of operator //geeksforgeeks
+15.check the following::
+i.
+ // String s1=new String("Hello");
+        // String s2=s1;
+        // s1=s1.concat(" World");
+        // System.out.println(s1);
+        // System.out.println(s2);
+        // System.out.println(s1==s2);
+//initially,s1 and s2 point to hello in the heap area and s1 will create an object in the scp. and when s1 is concatenated it will create the new object in the heap area with hello world and s1 will give hello world and s2 will give hello and s1==s2 will give false.
+
+ii.
+         String hello = "Hello", lo = "lo"; 
+         System.out.print(("Hel"+lo)==hello); //false
+	System.out.print(("Hel"+lo).intern()==hello); //true
+
+//both hello and lo variables are created in the scp area and "hel"+lo will be created in the heap area so it returns the false. but for ("hel"+lo).intern() will find for the string in the scp area it doesn't exists so it will create a new string in the scp and it gives true. 
+16.java intern method

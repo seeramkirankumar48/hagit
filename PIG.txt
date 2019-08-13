@@ -1,0 +1,284 @@
+PIG::
+-----
+
+//Pig is used to anlayze the unstructured and structured datasets with less complexity and with less development effort.
+
+//we can launch the pig grunt shell in two modes
+1.local
+2.mapreduce
+
+pig -x local;
+
+pig -x mapreduce;
+
+By default, it will launch in the mapreduce mode.
+
+//to get the help in the pig grunt shell
+help
+
+(or)
+
+without entering in to the pig shell using::
+pig -help
+
+//to exit
+quit;
+
+//to load the data in to the pig relation::
+data= LOAD '/user/edureka/WordCount.txt';
+dump data;
+
+//dump is used to dump the data to the grunt console
+
+//we can script the pig commands in to a file and then execute them::
+
+vi sample.pig
+
+data= LOAD '/user/edureka/WordCount.txt';
+dump data;
+
+to execute :: pig -f sample.pig
+
+to execute it from the grunt shell use::
+exec /home/edureka/sample.pig
+
+wordcount program ::
+
+lines = LOAD '/user/edureka/WordCount.txt' as (line:chararray);
+words = FOREACH lines GENERATE FLATTEN(TOKENIZE(line)) as word;
+grouped = GROUP words by word;
+wordcount = FOREACH grouped GENERATE group,COUNT(words);
+dump wordcount;
+
+
+//There is no string type in pig it is of type chararray.
+//For generating words if we dont use flatten then the output will the bag of tuples which will get generated for each line.
+
+//describe is used to let know the datatype and columns of that particular relation.
+
+describe words;
+words: {word: chararray}
+
+//to get the execution plan of the pig program (which is converted to the mapreduce program)::
+explain wordcount;
+
+//pig follows the lazy evaluation. until, the dump and store command is issued all the previous commands wont be executed.
+//all the pig commands we issue will be compiled to .jar file and issued to the RM as an mapreduce JOB.
+
+//Load the data in pig without schema
+
+departments = LOAD '/user/edureka/retail_db/departments/' using PigStorage(',');
+//here we are not specifying any schema so , if we describe on departments,
+//it will show as schema for departments is unknown.
+department_id = FOREACH departments GENERATE $0;
+//here we are not mentioning any data type for the generated $0 so, by default it will be treated as bytearray. If we want to convert into an int so that different transformations like sum,count can be applied.
+
+to convert::
+
+department_id = FOREACH departments GENERATE (int)$0;
+
+describe department_id
+department_id = FOREACH departments GENERATE $0;
+
+//we should use positional notation($0,$1) for the schema less relation in pig.
+
+//you can use the cat command directly from the grunt shell to view the contents that are stored in the HDFS.
+
+fs -cat /user/edureka/retail_db/departments/*;
+
+//Load the data in pig with schema::
+
+departments = LOAD '/user/edureka/retail_db/departments/' using PigStorage(',') as (department_id:int,department_name:chararray);
+depIds = FOREACH departments GENERATE department_id;
+
+
+//load the data from HIVE to pig::
+to get connected to the hive metastore from pig use::
+pig -useHCatalog
+
+orders = LOAD 'retail_db.orders' using org.apache.hive.hcatalog.pig.HCatLoader();
+
+//it will get the schema from the hive metastore.
+
+//To get the total count of records in the dataset::
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   orders_limit = limit orders 5;
+3   orders_group= GROUP orders ALL;
+4   orders_count= FOREACH orders_group GENERATE COUNT_STAR(orders) as cnt;
+
+
+//to get all the orders count by status::
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   orders_limit = limit orders 5;
+3   orders_group= GROUP orders ALL;
+4   orders_count= FOREACH orders_group GENERATE COUNT_STAR(orders) as cnt;
+5   orders_status_group = GROUP orders by order_status;
+6   orders_status_count= FOREACH orders_status_group GENERATE group,COUNT(orders);
+
+//to filter all the orders by order_status='COMPLETE' or 'CLOSED'
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   orders_limit = limit orders 5;
+3   orders_group= GROUP orders ALL;
+4   orders_count= FOREACH orders_group GENERATE COUNT_STAR(orders) as cnt;
+5   orders_status_group = GROUP orders by order_status;
+6   orders_status_count= FOREACH orders_status_group GENERATE group,COUNT(orders);
+7   orders_filter = FILTER orders by order_status=='COMPLETE' OR order_status=='CLOSED';
+8   orders_complete_closed_grouped= GROUP orders_filter ALL;
+9   orders_complete_close_count = FOREACH orders_complete_closed_grouped GENERATE COUNT(orders_filter) as cnt;
+
+
+//we can filter nulls using the filter condition::
+
+orders_filter = FILTER orders by order_status is not null;
+
+But,while using HCatLoader to load the data from hive to pig we need to implement one additional condition to check for the nulls::
+orders_filter = FILTER orders by order_status!='';
+
+//since hive uses the null character(\u0001) internally as a delimiter.
+
+
+//TO store the Data from PIG to different datasources and different formats::
+1. departments = LOAD '/user/edureka/retail_db/departments' using PigStorage(',') as (department_id:int,department_name:chararray);
+2   STORE departments INTO '/user/edureka/pigdemo/departments/';
+
+If you want to store the data using the different delimiter::
+STORE departments INTO '/user/edureka/pigdemo/departmentspipe/' using PigStorage('|')
+
+If you want to store the data in the binary file format::
+STORE departments INTO '/user/edureka/pigdemo/departmentsbin/' using BinStorage();
+
+If you want to store the data in the Json File Format::
+STORE departments INTO '/user/edureka/pigdemo/departmentsjson/' using JsonStorage();
+
+If you want to store the data into the hive table from PIG::
+
+STORE departments INTO 'pig_demo.departments' using org.apache.hive.hcatalog.pig.HCatStorer();
+
+//sort by::
+
+//The ordering will always trigger more than one mr job.
+
+1   categories = LOAD '/user/edureka/retail_db/categories' using PigStorage(',') as (category_id:int,category_department_id:int,category_category_name:chararray);
+2   categories_sort =ORDER categories by category_category_name;
+
+
+//eliminate duplicates using DISTINCT
+
+3   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+4   statuses = FOREACH orders GENERATE order_status;
+5   statuses_distinct = DISTINCT statuses;
+dump statuses_distinct;
+
+
+//set number of reduce tasks::
+
+we can set the number of tasks that needs to be run in parallel using 2 ways::
+1.set default_parallel 2;
+2.for every command PARALLEL 2;
+
+statuses_distinct = DISTINCT statuses PARALLEL 2;
+
+//JOINS::
+
+INNER JOIN::
+
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   order_items =LOAD '/user/edureka/retail_db_comma/order_items/' using PigStorage(',') as 
+(order_item_id:int,order_item_order_id:int,order_item_product_id:int,order_item_quantity:int,order_item_subtotal:float,order_item_product_price:float);
+3   order_limit= LIMIT orders 10;
+4   order_items_limit= LIMIT order_items 10;
+5   orders_join_order_items= JOIN orders by order_id,order_items by order_item_order_id;
+6   orders_join_order_items_limit = LIMIT orders_join_order_items 10;
+
+describe orders_join_order_items;  
+orders_join_order_items: {orders::order_id: int,orders::order_date: chararray,orders::order_customer_id: int,orders::order_status: chararray,order_items::order_item_id: int,order_items::order_item_order_id: int,order_items::order_item_product_id: int,order_items::order_item_quantity: int,order_items::order_item_subtotal: float,order_items::order_item_product_price: float}
+
+OUTER JOINS::
+
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   order_items =LOAD '/user/edureka/retail_db_comma/order_items/' using PigStorage(',') as 
+(order_item_id:int,order_item_order_id:int,order_item_product_id:int,order_item_quantity:int,order_item_subtotal:float,order_item_product_price:float);
+3   order_limit= LIMIT orders 10;
+4   order_items_limit= LIMIT order_items 10;
+5   orders_join_order_items= JOIN orders by order_id,order_items by order_item_order_id;
+6   orders_join_order_items_limit = LIMIT orders_join_order_items 10;
+7   orders_left_join_order_items = JOIN orders by order_id LEFT OUTER,order_items by order_item_order_id;
+8   orders_left_join_order_items_limit = LIMIT orders_left_join_order_items 10;
+9   orders_left_join_order_items_filter_nulls= FILTER orders_left_join_order_items by order_items::order_item_order_id is null;
+
+
+// orders_left_join_order_items = JOIN orders by order_id RIGHT OUTER,order_items by order_item_order_id;
+// orders_left_join_order_items = JOIN orders by order_id FULL OUTER,order_items by order_item_order_id;
+
+
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   order_items =LOAD '/user/edureka/retail_db_comma/order_items/' using PigStorage(',') as 
+(order_item_id:int,order_item_order_id:int,order_item_product_id:int,order_item_quantity:int,order_item_subtotal:float,order_item_product_price:float);
+3   order_limit= LIMIT orders 10;
+4   order_items_limit= LIMIT order_items 10;
+5   orders_join_order_items= JOIN orders by order_id,order_items by order_item_order_id;
+6   orders_join_order_items_limit = LIMIT orders_join_order_items 10;
+7   orders_left_join_order_items = JOIN orders by order_id LEFT OUTER,order_items by order_item_order_id;
+8   orders_left_join_order_items_limit = LIMIT orders_left_join_order_items 10;
+9   orders_left_join_order_items_filter_nulls= FILTER orders_left_join_order_items by order_items::order_item_order_id is null;
+10   orders_left_join_order_items_filter_nulls_grouped = GROUP orders_left_join_order_items_filter_nulls ALL;
+11   orders_left_join_order_items_filter_nulls_grouped_count= FOREACH orders_left_join_order_items_filter_nulls_grouped GENERATE 
+COUNT_STAR(orders_left_join_order_items_filter_nulls);
+
+//illustrate is used to describe the series of steps involved in executing the pig relations. It will also show a sample record.
+
+illustrate order_limit;
+
+//by default the joins are reduce side joins.
+//the map side joins provide high performance because for joining of two datasets. it will distribute the small dataset to each and every mapper in the map tasks and it will store in the distributed cache. thus the join will be performed on the map side and it will reduce the amount of time to transmit to the reducer phase.
+
+For the MAP Side Joins::
+
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   order_items =LOAD '/user/edureka/retail_db_comma/order_items/' using PigStorage(',') as 
+(order_item_id:int,order_item_order_id:int,order_item_product_id:int,order_item_quantity:int,order_item_subtotal:float,order_item_product_price:float);
+3   orders_left_join_order_items = JOIN orders by order_id LEFT OUTER,order_items by order_item_order_id USING 'replicated';
+4   orders_left_join_order_items_filter_nulls= FILTER orders_left_join_order_items by order_items::order_item_order_id is null;
+5   orders_left_join_order_items_filter_nulls_grouped = GROUP orders_left_join_order_items_filter_nulls ALL;
+6   orders_left_join_order_items_filter_nulls_grouped_count= FOREACH orders_left_join_order_items_filter_nulls_grouped GENERATE 
+COUNT_STAR(orders_left_join_order_items_filter_nulls);
+
+
+//For map side joins use replicated.
+
+
+Joins to calculate the daily revenue::
+----------------------------------------
+1   orders = LOAD '/user/edureka/retail_db_comma/orders/' using PigStorage(',') as (order_id:int,order_date:chararray,order_customer_id:int,order_status:chararray);
+2   order_items =LOAD '/user/edureka/retail_db_comma/order_items/' using PigStorage(',') as 
+(order_item_id:int,order_item_order_id:int,order_item_product_id:int,order_item_quantity:int,order_item_subtotal:float,order_item_product_price:float);
+3   orders_join_order_items = JOIN orders by order_id LEFT OUTER,order_items by order_item_order_id USING 'replicated';
+4   orders_join_order_items_grouped = GROUP orders_join_order_items BY orders::order_date;
+5   order_revenue_total_by_date = FOREACH orders_join_order_items_grouped GENERATE group, SUM(orders_join_order_items.order_items::order_item_subtotal);
+
+
+UDF::(User Defined Functions)
+-----
+//pig provides the user Defined functions in the form of a JAR file called piggybank.jar
+
+if you want to know the list of functions::
+jar tvf piggybank.jar
+
+REGISTER /usr/lib/pig-0.12.0/contrib/piggybank/java/piggybank.jar;
+
+7   departments = LOAD '/user/edureka/retail_db_comma/departments/' using PigStorage(',') as (department_id:int,department_name:chararray);
+8   departments_upper = FOREACH departments GENERATE department_id,org.apache.pig.piggybank.evaluation.string.UPPER(department_name);
+
+
+//instead of giving the whole name org.apache.pig.piggybank.evaluation.string.UPPER we can define an alias for this using::
+
+DEFINE UPPER org.apache.pig.piggybank.evaluation.string.UPPER;
+
+departments_upper = FOREACH departments GENERATE department_id,UPPER(department_name);
+
+DUMP departments_upper;
+
+
+//To start the hive metastore service::
+hive --service metastore &
+

@@ -1,0 +1,12 @@
+Q1.how to upgrade spark 1.0 cluster to spark 2.0
+Q2.what is rowRDD
+q3.what is the difference between map and map partition.
+Q4.what is the difference between DAG and lineage
+Q5.how to apply conditions on sqoop incremental command?
+Q6.what is catalyst and tungsten optimizers?
+Q7.what is global temp table in spark
+Q8.join and aggregate operations on sparkDF
+Q9.what is sqoop metastore?
+Q10.oozie spark action?
+Q11.spark udf's
+Q12.spark streaming context?

@@ -1,0 +1,18 @@
+common::
+--------
+//to calculate the storage::
+
+hadoop dfsadmin -report
+hadoop dfs -du
+
+
+//safe mode enter/leave::
+hdfs dfsadmin -safemode enter
+hdfs dfsadmin -safemode leave
+
+//dfs.hosts.exclude must be edited if you want to decomission some of the slave nodes.
+
+//hadoop stores the deleted files in the .trash directory.
+to delete the trash
+hdfs dfs -expunge
+

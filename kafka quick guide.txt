@@ -1,0 +1,474 @@
+kafka::
+-------
+
+kafka-topics.sh --create --topic testtopic --partitions 2 --replication-factor 2 --zookeeper localhost:2181
+
+kafka-topics.sh --describe --topic testtopic --zookeeper localhost:2181
+
+kafka-console-producer.sh --topic testtopic --broker-list localhost:9092
+
+kafka-console-consumer.sh --topic testtopic --bootstrap-server localhost:9092 --from-beginning
+
+Sample Kafka Producer::
+-----------------------
+
+import java.util.*;
+    import org.apache.kafka.clients.producer.*;
+    public class SimpleProducer {
+                                                        
+        public static void main(String[] args) throws Exception{
+                                                        
+            String topicName = "SimpleProducerTopic";
+            String key = "Key1";
+            String value = "Value-1";
+                                                        
+            Properties props = new Properties();
+            props.put("bootstrap.servers", "localhost:9092,localhost:9093");
+            props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");         
+            props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+                                                        
+            Producer<String, String> producer = new KafkaProducer<>(props);
+                                                        
+            ProducerRecord<String, String> record = new ProducerRecord<>(topicName,key,value);
+            producer.send(record);
+            producer.close();
+                                                        
+            System.out.println("SimpleProducer Completed.");
+        }
+    } 
+	
+//The client will send the message to kafka producer and from there it will reach the kafka broker.
+it will be like client->producer->broker
+1.we will need the properties file which contains the (broker-list,key-serializer,value-serializer)
+//we need the serializers because kafka stores the message in the form of bytes, these serializers will convert the respective datatypes to bytes.
+2.we will create a producer object by passing the properties created in step 1.
+3.we will create a ProducerRecord by passing the topic name,key,value
+//the key is optional.
+4.kafka will use default partitioner in deciding which partition the value should go by hasing with the key. If there is no key mentioned then it will use the round robin algorithm in distributing the data evenly.
+5.kafka will store these records in the ParitionBuffer and will send the records in batches (what is the buffer size? and how much time should the messages should wait in the buffer will be configurable using the properties).
+6.From the buffer it will reach to the kafka broker.
+7.once the message reaches to the kafka broker successfully, it will return the RecordMetadata.
+//The RecordMetadata will have the parition number and the offset value.
+8.However if there are any failures while sending the ProducerRecord to the Broker we can retries.
+
+//Producer Callback & Acknowledgement
+1.Fire and Forget.
+in fire and forget we will send the record to the broker and we will not care whether the message got successfully reached to the broker or not.
+Ex:: SimpleProducer
+2.Synchronus Call.
+In the synchronous call we will send the data to the broker and it will wait for the acknowledgement(RecordMetadata). it will drastically reduce the performance because the producer waits until it gets the acknowledgement.
+Ex:SynchronousProducer
+3.Asynchronus call.
+In the asynchronous call we will send the data to the broker and it will not wait until it gets the acknowledgement but we will get the acknowledgements asychronously by implementing a callback function. There is one property that controls the asynchronous call i.e., max.in.flight.requests.per.connection which will tell for how many messages the producer can wait until it gets the acknowledgement.
+Ex:AsynchronousProducer 
+
+
+import java.util.*;
+    import org.apache.kafka.clients.producer.*;
+    public class SynchronousProducer {
+                                    
+    public static void main(String[] args) throws Exception{
+                                    
+        String topicName = "SynchronousProducerTopic";
+        String key = "Key-1";
+        String value = "Value-1";
+                                    
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092,localhost:9093");                                        
+        props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); 
+
+        Producer producer = new KafkaProducer<>(props);                                    
+        ProducerRecord record = new ProducerRecord<>(topicName,key,value);
+                                    
+        try{
+            RecordMetadata metadata = producer.send(record).get();
+            System.out.println("Message is sent to Partition no " + metadata.partition() + " and offset " + metadata.offset());
+            System.out.println("SynchronousProducer Completed with success.");
+            }catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("SynchronousProducer failed with an exception");
+            }finally{
+                producer.close();
+            }
+        }
+    } 
+	
+	
+	
+	import java.util.*;
+    import org.apache.kafka.clients.producer.*;
+                                    
+    public class AsynchronousProducer {
+                                    
+    public static void main(String[] args) throws Exception{
+        String topicName = "AsynchronousProducerTopic";
+        String key = "Key1";
+        String value = "Value-1";
+                                    
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092,localhost:9093");
+        props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+                                    
+        Producer producer = new KafkaProducer<>(props);                                    
+        ProducerRecord record = new ProducerRecord<>(topicName,key,value);
+                                    
+        producer.send(record, new MyProducerCallback());
+        System.out.println("AsynchronousProducer call completed");
+        producer.close();
+                                    
+        }                                    
+    }
+                                    
+    class MyProducerCallback implements Callback{
+                                    
+        @Override
+        public  void onCompletion(RecordMetadatarecordMetadata, Exception e) {
+            if (e != null)
+                System.out.println("AsynchronousProducer failed with an exception");
+            else
+                System.out.println("AsynchronousProducer call Success:");
+        }
+    }  
+	
+	
+Partitioner::
+-------------
+//The key will be helpful in deciding to which partition the message should send.
+//by default it will use the default partitioner.
+//there are 3 scenarios in which the default partitioner can be invoked.
+1.when a key is specified it will by default hash the key and assign the partition.
+2.If a partition is specified while sending the message it will by default use the specified partition.
+3.when key is not specified it will distribute the messages in round-robin fashion.
+
+//The custom partitioner class contains three methods::
+1.configure
+2.partition
+3.close
+
+Example::
+---------
+//SensorProducer.java
+
+import java.util.*;
+import org.apache.kafka.clients.producer.*;
+public class SensorProducer {
+
+   public static void main(String[] args) throws Exception{
+
+      String topicName = "SensorTopic";
+
+      Properties props = new Properties();
+      props.put("bootstrap.servers", "localhost:9092,localhost:9093");
+      props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+      props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+      props.put("partitioner.class", "SensorPartitioner");
+      props.put("speed.sensor.name", "TSS");
+
+      Producer<String, String> producer = new KafkaProducer <>(props);
+
+         for (int i=0 ; i<10 ; i++)
+         producer.send(new ProducerRecord<>(topicName,"SSP"+i,"500"+i));
+
+         for (int i=0 ; i<10 ; i++)
+         producer.send(new ProducerRecord<>(topicName,"TSS","500"+i));
+
+      producer.close();
+
+          System.out.println("SimpleProducer Completed.");
+   }
+}
+
+//SensorPartitioner.java
+
+import java.util.*;
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.*;
+import org.apache.kafka.common.utils.*;
+import org.apache.kafka.common.record.*;
+
+public class SensorPartitioner implements Partitioner {
+
+     private String speedSensorName;
+
+     public void configure(Map<String, ?> configs) {
+          speedSensorName = configs.get("speed.sensor.name").toString();
+
+     }
+
+     public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster) {
+
+           List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
+           int numPartitions = partitions.size();
+           int sp = (int)Math.abs(numPartitions*0.3);
+           int p=0;
+
+            if ( (keyBytes == null) || (!(key instanceof String)) )
+                 throw new InvalidRecordException("All messages must have sensor name as key");
+
+            if ( ((String)key).equals(speedSensorName) )
+                 p = Utils.toPositive(Utils.murmur2(valueBytes)) % sp;
+            else
+                 p = Utils.toPositive(Utils.murmur2(keyBytes)) % (numPartitions-sp) + sp ;
+
+                 System.out.println("Key = " + (String)key + " Partition = " + p );
+                 return p;
+  }
+      public void close() {}
+
+}
+
+
+CustomSerializer::
+------------------
+If we want to send the custom messages(like objects) to the kafkabroker then we need to specify the custom serializer and deserializer since kafka only stores the data in the byte[].
+
+//similar to partitioner it will also have configure,serialize/deserialize,close methods.
+
+//Supplier.java
+import java.util.Date;
+public class Supplier{
+        private int supplierId;
+        private String supplierName;
+        private Date supplierStartDate;
+
+        public Supplier(int id, String name, Date dt){
+                this.supplierId = id;
+                this.supplierName = name;
+                this.supplierStartDate = dt;
+        }
+
+        public int getID(){
+                return supplierId;
+        }
+
+        public String getName(){
+                return supplierName;
+        }
+
+        public Date getStartDate(){
+                return supplierStartDate;
+        }
+}
+
+//SupplierProducer.java
+import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import org.apache.kafka.clients.producer.*;
+public class SupplierProducer {
+
+   public static void main(String[] args) throws Exception{
+
+      String topicName = "SupplierTopic";
+
+      Properties props = new Properties();
+      props.put("bootstrap.servers", "localhost:9092,localhost:9093");
+      props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+      props.put("value.serializer", "SupplierSerializer");
+
+      Producer<String, Supplier> producer = new KafkaProducer <>(props);
+
+          DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+          Supplier sp1 = new Supplier(101,"Xyz Pvt Ltd.",df.parse("2016-04-01"));
+          Supplier sp2 = new Supplier(102,"Abc Pvt Ltd.",df.parse("2012-01-01"));
+
+         producer.send(new ProducerRecord<String,Supplier>(topicName,"SUP",sp1)).get();
+         producer.send(new ProducerRecord<String,Supplier>(topicName,"SUP",sp2)).get();
+
+                 System.out.println("SupplierProducer Completed.");
+         producer.close();
+
+   }
+}
+
+//SupplierConsumer.java
+import java.util.*;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+
+public class SupplierConsumer{
+
+        public static void main(String[] args) throws Exception{
+
+                String topicName = "SupplierTopic";
+                String groupName = "SupplierTopicGroup";
+
+                Properties props = new Properties();
+                props.put("bootstrap.servers", "localhost:9092,localhost:9093");
+                props.put("group.id", groupName);
+                props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+                props.put("value.deserializer", "SupplierDeserializer");
+
+
+                KafkaConsumer<String, Supplier> consumer = new KafkaConsumer<>(props);
+                consumer.subscribe(Arrays.asList(topicName));
+
+                while (true){
+                        ConsumerRecords<String, Supplier> records = consumer.poll(100);
+                        for (ConsumerRecord<String, Supplier> record : records){
+                                System.out.println("Supplier id= " + String.valueOf(record.value().getID()) + " Supplier  Name = " + record.value().getName() + " Supplier Start Date = " + record.value().getStartDate().toString());
+                        }
+                }
+
+        }
+}
+
+
+//SupplierSerializer.java
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.errors.SerializationException;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
+import java.nio.ByteBuffer;
+
+public class SupplierSerializer implements Serializer<Supplier> {
+    private String encoding = "UTF8";
+
+    @Override
+    public void configure(Map<String, ?> configs, boolean isKey) {
+                // nothing to configure
+    }
+
+    @Override
+    public byte[] serialize(String topic, Supplier data) {
+
+                int sizeOfName;
+                int sizeOfDate;
+                byte[] serializedName;
+                byte[] serializedDate;
+
+        try {
+            if (data == null)
+                return null;
+                            serializedName = data.getName().getBytes(encoding);
+                                sizeOfName = serializedName.length;
+                                serializedDate = data.getStartDate().toString().getBytes(encoding);
+                                sizeOfDate = serializedDate.length;
+
+                                ByteBuffer buf = ByteBuffer.allocate(4+4+sizeOfName+4+sizeOfDate);
+                                buf.putInt(data.getID());
+                                buf.putInt(sizeOfName);
+                                buf.put(serializedName);
+                                buf.putInt(sizeOfDate);
+                                buf.put(serializedDate);
+
+
+                return buf.array();
+
+        } catch (Exception e) {
+            throw new SerializationException("Error when serializing Supplier to byte[]");
+        }
+    }
+
+    @Override
+    public void close() {
+        // nothing to do
+    }
+}
+
+
+//SupplierDeserializer.java
+
+import java.nio.ByteBuffer;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import org.apache.kafka.common.errors.SerializationException;
+import org.apache.kafka.common.serialization.Deserializer;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
+public class SupplierDeserializer implements Deserializer<Supplier> {
+    private String encoding = "UTF8";
+
+    @Override
+    public void configure(Map<String, ?> configs, boolean isKey) {
+                //Nothing to configure
+        }
+
+    @Override
+    public Supplier deserialize(String topic, byte[] data) {
+
+        try {
+            if (data == null){
+                System.out.println("Null recieved at deserialize");
+                                return null;
+                                }
+            ByteBuffer buf = ByteBuffer.wrap(data);
+            int id = buf.getInt();
+
+            int sizeOfName = buf.getInt();
+            byte[] nameBytes = new byte[sizeOfName];
+            buf.get(nameBytes);
+            String deserializedName = new String(nameBytes, encoding);
+
+            int sizeOfDate = buf.getInt();
+            byte[] dateBytes = new byte[sizeOfDate];
+            buf.get(dateBytes);
+            String dateString = new String(dateBytes,encoding);
+
+            DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+
+            return new Supplier(id,deserializedName,df.parse(dateString));
+
+
+
+        } catch (Exception e) {
+            throw new SerializationException("Error when deserializing byte[] to Supplier");
+        }
+    }
+
+    @Override
+    public void close() {
+        // nothing to do
+    }
+}
+
+
+//Its not a good practice to use the custom serializers,because whenever there are any model changes in the pojo class it will not fit in for reading the old data.
+//also changing the code needs to change both serializer and deserializer and consumer/producer.
+
+ProducerConfigs::
+-----------------
+1.acks::(acknowledgements)
+It has three values::
+//0--It is fire and forget will not get any acknowledgement back.
+//1--It will send the acknowledgement but not sure whether the data replicated to the followers.
+//ALL--It will wait until the data gets replicated to the followers.
+
+2.retries
+
+3.max.in.flight.requests.per.connection
+
+//In asynchronous calls the ordering of the messages is not guaranteed.say if there are 10 messages with two batches with pattern::
+
+batch-1:1,2,3,4,5
+batch-2:6,7,8,9,10
+
+when the first batch failed and in between if the batch2 data was sent and if it gets succeeded, it will try the batch1 again and if it gets succeeded then the data will be like batch2,batch1.
+
+//If the order of the data is important use::
+1.synchronous call.
+2.asynchronous call with max.in.flight.requests.per.connection=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

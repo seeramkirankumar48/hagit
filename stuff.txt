@@ -1,0 +1,760 @@
+java exception handling::
+------------------------
+exception::
+An exception is an abnormal termination from the normal flow of the program.
+
+ex::
+suppose if a database is there, and if a connection is made to read the data and in between there is a SQLException and if there is no close of the sql connection this will make the resource consumption and if the database could not handle more than 10 users the 11th user may not connect with the db.
+
+try
+{
+//open conn
+//read data
+}
+catch(Exception ex)
+{
+//abnormal execution
+}
+finally
+{
+//close the connn
+}
+
+-->For every thread jvm internally maintains the "Runtime Stack" for that particular thread.
+
+class Test{
+p.s.v.m(){
+do stuff();
+}
+public void dostuff()
+{
+do morestuff();
+}
+public void domorestuff()
+{
+sysout("hello");
+}
+}
+//stack is mentioned as::
+domorestuff()
+dostuff()
+main
+
+If an exception occurs::
+public void domorestuff()
+{
+sysout(10/0)
+}
+//stack is mentioned as::
+domorestuff()
+dostuff()
+main
+
+//since exception arises at:
+domorestuff, JVM will remove that particular line from runtime stack and will not execute the rest of the lines and it will pass to the do stuff method and this cycle repeats....
+
+-->Throwable is root class for all the exceptions and it is extended by the "Exception" and "Error"
+
+Exception::
+-----------
+all the exceptions are recoverable and these are mainly because of the user program.
+try
+{
+//read from a file located at the london
+}
+catch(Exception ex)
+{
+//read from local back up file
+}
+ex::IOException,RunTimeException
+
+Error::
+--------
+most of the times errors are not caused by the programs.these can be due to lack of system resources and these are non recoverable.
+Ex::OutOfMemoryError,StackOverflowError
+
+The exceptions are broadly classified into 2 types::
+a.Checked Exception
+While writing the code there might be a chance of leading to the exceptions this is called the Checked Exception.
+All the exceptions except Runtime exception,Error are Checked Exception
+ex::IOException,SQLException,ClassNotFoundException
+ex:: During writing to a file there may be a chance of file doesn't exists,so how you are going to handle this kind of scenarios will be the CheckedException.
+-->The classes that extend from Throwable class except RuntimeException and Error are Checked Exceptions.
+
+b.unchecked exception
+the exceptions which occur at run time is called as unchecked exceptions.
+ex::ArithmeticException
+
+we can provide the exception messages in three methods.
+e.printStackTrace // prints exception type,description and where the error occurs
+println(e) or println(e.toString()) // prints exception type,description
+println(e.getMessage()) //description.
+
+The risky code should be enclosed in try block and the exception itself should be caught in the catch block.
+whenever a exception is caught the rest of the lines in the try block are skipped and the control will immediately flow to the catch block.
+so,if you contain the code like following::
+try
+{
+//code of 1000 loc
+}
+catch(Exception ex)
+{
+//handler code
+}
+-->If an exception occurs in the first line itself then then the control will be immediately thrown to the catch block and the rest of the 999 loc are not at all executed. so instead of maintaining all of the loc in try block identify which all parts of the code is risky and keep those blocks in the multiple try and catch blocks.
+The exceptions may also arise in the catch and finally block also.
+
+consider the following code::
+try
+{
+stmt1
+stmt2
+stmt3
+}
+catch(Exception e)
+{
+stmt4;
+}
+stmt5
+
+cases::
+1.no exception in try block occured::1,2,3,5 normal termination
+2.exception occured at stmt2::1,4,5 normal termination
+3.exception occured at stmt4:: abnormal termination
+4.exception occured at stmt5:: abnormal termination
+
+-->The parent exception should not be the top most exception in the catch block
+consider the following code::
+try
+{
+//code
+}
+catch(Exception ex)
+{
+//handler
+}
+catch(ArithmeticException ex)
+{
+//handler
+}
+
+C.T Error:: exception already caught using the exception catch
+
+so,the code should be ::
+try
+{
+//code
+}
+catch(ArithmeticException ex)
+{
+//handler
+}
+catch(SQLException ex)
+{
+//handler
+}
+catch(Exception ex)
+{
+//handler
+}
+
+-->Whenever an exception occurs and there is no suitable catch block available for that particular block then that particular exception is carried forward to the jvm where it provides the DefaultExceptionHandler and uses the printStackTrace Method by default to print the error message and the program terminates abnormally.
+
+
+try can be followed by the catch or finally.
+finally is used to write the clean up code.
+
+-->The finally block is guaranteed to execute whether there is an exception or not.
+-->The finally block will not be executed if program exits(either by calling System.exit() or by causing a fatal error that causes the process to abort). 
+
+ex::
+public class First{
+	public static void main(String[] args){
+		
+		try
+		{
+			System.out.println(10/0);
+			
+		}
+		
+		catch(Exception ex){
+			ex.printStackTrace();
+			System.exit(0);
+		}
+		finally{
+			System.out.println("finally");
+		}
+	}
+}
+
+
+
+whenever, we write a try block it should be followed by the catch or finally block.
+
+diff b/w finally and finalize is that finally is used to clean up the code written in try block where as finalize is used to cleanup the object level code before it is being killed up by the Garbage collector.
+
+code possiblity::
+try
+{
+//code
+}
+finally
+{
+//finally code
+}
+
+why finally is allowed after try without catch??
+it allows the program with the abnormal termination but before that it may want to perform some of the clean up activities.
+
+partially checked exceptions::
+the partially checked exceptions contains both checked as well as unchecked exceptions there are only 2 types of this.
+1.Throwable
+2.Exception
+
+throw keyword::
+sometimes we can create exception object explicitly and can handover the exception to the jvm.
+//code..
+
+class Test{
+p.s.v.m(String[] args)
+{
+throw new ArithmeticException("/ by 0"); //creating the exception manually and passing it to the jvm.
+}
+}
+
+-->Throw will be useful in throwing the user defined exceptions.
+-->Throw will be used to throw both the Checked as well as unchecked exceptions but the thing is 
+for,checked exceptions & partially checked exceptions there should be an exception propagation the same is not true for the unchecked exceptions.
+
+code::
+public class First{
+	public static void main(String[] args) {
+		try
+		{
+		dostuff();
+		}
+		catch(Exception ex)//unhandled exception should be thrown or caught.
+		{
+			System.out.println(ex);
+		}
+	}
+	public static void dostuff() throws IOException
+	//unhandled exception should be thrown or caught.
+	{
+		domorestuff();
+	}
+	public static void domorestuff() throws IOException
+	//unhandled exception should be thrown or caught.
+	{
+		throw new IOException("IO Exception thrown");
+	}
+}
+
+
+//there is no need for exception propagation in unchecked exceptions but atleast one method which is calling in the chain must implement the catch or throws.
+
+
+public class First{
+	public static void main(String[] args) {
+		try
+		{
+		dostuff();
+		}
+		catch(Exception ex)//unhandled exception should be thrown or caught.
+		{
+			System.out.println(ex);
+		}
+	}
+	public static void dostuff()
+	{
+		domorestuff();
+	}
+	public static void domorestuff()
+	{
+		throw new ArithmeticException("Arithmetic Exception thrown");
+	}
+}
+
+consider the following code::
+1.
+class Test{
+p.s.v.main(String[] args){
+ try
+{
+sysout("hello world");
+}
+catch(IOException ex){ //c.T.error unnecessary usage of IOException as IO is never used in the try block.
+sysout(ex);
+}
+}
+
+2.
+class Test{
+p.s.v.main(String[] args) throws IOException{
+sysout("hello");
+}
+}
+//works fine without any issues.
+
+ExceptionHandling with MethodOverriding in Java::
+-------------------------------------------------
+
+There are many rules if we talk about methodoverriding with exception handling. The Rules are as follows: 
+
+A.If the superclass method does not declare an exception::
+If the superclass method does not declare an exception, subclass overridden method cannot declare the checked exception but it can declare unchecked exception. 
+
+B.If the superclass method declares an exception::
+If the superclass method declares an exception, subclass overridden method can declare same, subclass exception or no exception but cannot declare parent exception. 
+
+-->Throw will not be used to throw an class object.
+
+
+code::
+class Test{
+p.s.v.m(String[] args)
+{
+throw new B();
+}
+}
+
+class B
+{
+
+}
+
+ex1::
+class Test{
+static ArithmeticException ex=new ArithmeticException();
+p.s.v.main(String[] args)
+{
+throw ex;
+}
+}
+//throws Arithmetic Exception.
+
+ex2::
+class Test{
+ArithmeticException ex;
+p.s.v.main(String[] args)
+{
+throw new ex;
+}
+}
+//throws NullPointer Exception.
+
+ex3::
+class Test{
+p.s.v.main(String[] args)
+{
+throw new Exception("exception");
+s.o.p("hello"); //C.T error unreachable code
+}
+}
+
+//In the above when the throw statement was encountered it will throw to the corresponding method catch method if exists, if it doesn't exists then it will by default thrown to the Jvm and the rest of the code is unreachable.
+
+throws keyword::
+If in a program, if there is a possibility of CheckedException it is compulsory to handle the checked exception otherwise, we will get compile time error saying ,ex:: unreported error xxxx, must be caught or declared to be thrown.
+
+//It is mainly used to replace the try,catch functionality.
+
+ex1::
+import java.io.*;
+public class MyClass {
+    public static void main(String args[]) {
+       
+        PrintWriter pw=new PrintWriter("abc.txt"); //C.T error
+        pw.println("hello");
+       
+    }
+}
+
+//here it may throw C.T error because there may be a possibility of FileNotFound Exception.
+
+ex2::
+public class MyClass {
+    public static void main(String args[]) {
+       Thread.sleep(10000);//C.T error
+      }
+      }
+//here it will throw C.T. error because there may be a possiblity of Interrupted exceptions(Other threads are calling the main method which is in sleep state)
+
+-->These checked exceptions are handled in 2 ways
+1.try,catch
+2.throws
+we can use throws keyword to delegate the responsibility of exception handling to the caller(JVM,another method), then the caller method is responsible to handle that exception.
+
+ex::
+public class MyClass {
+    public static void main(String args[]) throws InterruptedException{
+       Thread.sleep(10000);
+      }
+      }
+
+-->throws keyword doesn't prevent abnormal termination of the program.
+
+class Test{
+p.s.v.m(String[] args)
+{
+dostuff();
+}
+public void dostuff()
+{
+domorestuff();
+}
+public void domorestuff()
+{
+Thread.sleep(1000)// throws c.T error throws InterupptedException must be thrown or caught
+}
+}
+
+1.here domorestuff() has 2 options either it has to throw that or it must be caught using try or catch letus assume that it throws IE as the domorestuff() is called by dostuff() it will delegate the exception call to the dostuff(),since it(dostuff) doesn't have any exception handling this cycle will be repeated.
+
+ex::
+
+class Test{
+p.s.v.m(String[] args) throws InterruptedException
+{
+dostuff();
+}
+public void dostuff()
+{
+domorestuff();
+}
+public void domorestuff()
+{
+Thread.sleep(1000)// throws C.T error throws InterupptedException must be thrown or caught
+}
+}
+
+//here only the main method is throwing the interrupted exception but it doesn't delegated by the domorestuff() method hence it will throw C.T.Error
+
+ex::
+class Test{
+p.s.v.m(String[] args)
+{
+throw new Exception(); //c.t error since the checked exceptions need to be handled
+}
+}
+
+//within the try block if there is no chance of raising an exception, then we can't write catch block for that exception otherwise we will get c.t.error saying, exception xxx is never thrown in body of corresponding try statement,but this rule is fully applicable to the fullyChecked exceptions.
+
+ex::
+import java.io.*;
+public class MyClass {
+    public static void main(String args[]) throws ArithmeticException {
+     try
+     {
+         System.out.println("hello");
+     }
+     catch(IOException ex){
+         System.out.println(ex);
+     }
+    }
+}
+
+
+customized or user defined exceptions::
+programmer defined exceptions are called as customized exceptions.
+
+//throw keyword is best suitable for userdefined or customized exceptions but not for predefined exceptions.
+
+//it is highly recommended to define the customized exceptions as unchecked that is we have to extends runtime exception but not exception.
+
+class CustomException extends RunTimeException{
+CustomException(String s)
+{
+super(s); // super is used because it is used to print the statement to the console to print that the printstacktrace() is used since it //is available in Throwable class we need to use the super keyword
+}
+}
+
+JAVA IO::
+---------
+1.File
+File f = new File("abc.txt");
+//It will not create a file it will just point to the file object in java literally saying it will just set the context to the file object in java.
+
+//f.createNewFile() is used to create a new file but not File f = new File("abc.txt");
+
+//whenever, a file already exists and you are creating a same file with the same name then it will not create a new file again it will just simply return true.
+
+//To create a directory...
+File f1=new File("abc");
+f1.mkdir();
+System.out.println(f1.exists()); 
+
+File(file or directory creation) constructors::
+a.File f=new File(String name);
+//used to create a file or directory in the current working directory.
+b.File f=new File(String dir,String name);
+//used to create a file in the directory specified.
+c.File f=new File(File subdir,String name);
+//used to create a file in the directory, by already specified file directory object.
+
+//code::
+
+File fdir=new File("E:\\abc");  
+fdir.mkdir();                   
+File f=new File(fdir,"abc.txt");
+f.createNewFile();              
+System.out.println(f.exists()); 
+
+File object methods::
+1.boolean f.exists();
+//checks for the existence of the file
+2.boolean f.createNewFile();
+//creates a new file
+3.boolean mkdir()
+//creates a directory
+4.boolean isFile()
+//Checks if the specified file object is an file
+5.boolean isDirectory()
+//Checks if the specified file object is an directory
+6.String[] list()
+//gets the lists of file
+7.long length();
+//gets the length of the file
+8.boolean delete();
+//deletes the file object.
+
+//code to list all the files the particular directory.
+
+File fdir=new File("E:\\abc");        
+String[] fileList=fdir.list();        
+for(String i:fileList){               
+	File f =new File(fdir,i);         
+	if(f.isFile()){                   
+		System.out.println(i);        
+	}                                 
+}                                     
+
+
+2.FileWriter
+//FileWriter is used to write the contents to the file.
+
+//FileWriter constructors..
+//overrides if a file already exists.
+a.FileWriter fw = new FileWriter(string fname)
+b.FileWriter fw = new FileWriter(File f)
+
+//appends if a file already exists.
+c.FileWriter fw = new FileWriter(string fname,boolean append)
+d.FileWriter fw = new FileWriter(File f,boolean append)
+
+methods of FileWriter::
+1.write(int ch)
+//writes a unicode character to a file
+2.write(char[] ch)
+//writes an char array of contents to a file.
+3.Write(String s)
+4.flush()
+//flushes the file contents
+5.close()
+//closes the stream after writing has done.
+
+//code for creating a overriding file...           
+FileWriter fw = new FileWriter("E:\\abc\\abc.txt");
+fw.write("helloWorld");                            
+fw.flush();                                        
+fw.close(); 
+
+//code for creating appending contents to file...       
+FileWriter fw = new FileWriter("E:\\abc\\abc.txt",true);
+fw.write("helloWorld");                                 
+fw.write(100);                                          
+char[] ch={'a','b','c'};                                
+fw.write(ch);                                           
+fw.flush();                                             
+fw.close();                                             
+
+??then what is the use of PrintWriter and BufferedWriter?
+A:while writing the contents to a file we need to align to a format("\n") and since some of the systems cannot recognise these special character symbols hence it is recommended to use the PrintWriter or BufferedWriter.
+
+                                       
+3.FileReader
+//It is used to read the contents from the file.
+
+FileReader Constructors::
+a.FileReader fr=new FileReader(String fname);
+b.FileReader fr=new FileReader(File f)
+
+FileReader methods::
+a.int read()
+//reads contents from the file character by character and prints in an unicode number format.
+//if it gives "-1" then there is no character present.
+b.int read(char[] ch)
+//takes the paramters to read number of characters to read and returns the number of characters copied.
+c.void close()
+//closes the stream.
+
+//code to read the entire file contents from the file.
+a.
+FileReader fr=new FileReader("E:\\abc\\abc.txt");
+int i=fr.read();                                 
+while(i!=-1){                                    
+	System.out.print((char)i);                   
+	i=fr.read();                                 
+}                                                
+
+//code to read the file by specifying the length.
+b.
+File f=new File("E:\\abc\\abc.txt");       
+FileReader fr=new FileReader(f);           
+char[] ch= new char[((int)f.length())];    
+fr.read(ch);                               
+for(char i:ch){                            
+	System.out.print(i);                   
+}                                          
+fr.close();                                
+
+??why go for BufferedReader?
+A:suppose, if there is a file which contains 10000 lines and if we want to search for a specific string in that 10000 lines we have to read the content of the file by making 10000 hits so,in order to avoid that and to read the file contents by line by line it is better to use BufferedReader.
+
+??why go for BufferedWriter?
+A:suppose if we want to write a special character("\n") some of the systems wont recognise these characters so thats why it is better to go for BufferedWriter.
+
+??why go for PrintWriter?
+A.suppose if want to write 100(int) value we need to pass it as string for BufferedWriter(bw.write("100")).the PrintWriter provides the mechanisms for all the data types.
+
+
+BufferedWriter::
+----------------
+Constructors::
+BufferedWriter bw = new BufferedWriter(Writer w)
+BufferedWriter bw = new BufferedWriter(Writer w,int buffsize)
+
+The BufferedWriter can't directly communicate with the file it needs an Writer object.
+
+
+methods::
+---------
+write(int ch)
+write(char[] ch)
+write(String s)
+flush()
+close()
+newLine()
+
+code::
+File f = new File("E:\\abc\\abc.txt");   
+FileWriter fw = new FileWriter(f);       
+BufferedWriter bw=new BufferedWriter(fw);
+bw.write("hello world");                 
+bw.newLine();                            
+bw.write("kiran");                       
+bw.newLine();                            
+bw.write("seeram");                      
+bw.flush();                              
+bw.close();  //when we are closing the bufferedWriter we do not need to close the FileWriter it will implicitly close.
+
+BufferedReader::
+----------------
+BufferedReader constructors::
+BufferedReader bw = new BufferedReader(Reader r)
+BufferedReader bw = new BufferedReader(Reader r,int buffsize)                      
+methods::
+int read(char[] ch)
+int read
+void close()
+String readLine()
+//if there is no line then it will show null
+ 
+
+//code::
+                                          
+File f = new File("E:\\abc\\abc.txt");   
+FileReader fr = new FileReader(f);       
+BufferedReader br=new BufferedReader(fr);
+String s= br.readLine();                 
+while(s!=null){                          
+	System.out.println(s);               
+	s=br.readLine();                     
+}                                        
+br.close();                              
+
+PrintWriter::
+constructors::
+PrintWriter pw = new PrintWriter(String fname)
+PrintWriter pw = new PrintWriter(File f)
+PrintWriter pw = new PrintWriter(Writer w)
+
+methods::
+write(int ch)
+write(char[] ch)
+write(String s)
+flush()
+close()
+
+println(any data type)
+
+//code
+PrintWriter pw = new PrintWriter("E:\\abc\\abc.txt");
+pw.println("hello world");                           
+pw.println("kiran");                                 
+pw.println("seeram");                                
+pw.println(7);                                       
+pw.flush();                                          
+pw.close();                                          
+
+diff b/w pw.write(100) and pw.print(100)
+pw.write(100) // writes the unicode character 'd' to file
+pw.print(100) // writes the integer value 100 to the file.
+
+There are mainly two types of files.
+1.Character File or text file(it has readers / writers)
+2.binary File(audio files,video)
+         |
+	Streams
+--------------------
+|		   |
+InputStream    outputStream
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+db::
+----
+use of initializing the instance variables in the class?
+why cant we throw partially checked exceptions using throw?
+
+explore::
+
+import java.io.*;
+public class MyClass {
+    public static void main(String[] args) throws Throwable
+    {
+           dostuff();
+          
+    }
+    public static void dostuff(){
+        throw new ArithmeticException("test");
+    }
+}
+
+

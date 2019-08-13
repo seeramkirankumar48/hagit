@@ -1,0 +1,3 @@
+msck repair table departments;
+
+hive -f products.sql

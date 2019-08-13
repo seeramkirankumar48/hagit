@@ -1,0 +1,348 @@
+sqoop::
+-------
+sqoop is used to let the data transfer happen from one system to another system.
+
+The word sqoop stands for sql+hadooop =sqoop
+
+The target system is usually hdfs.
+
+--All the connectors to the source systems are placed in the lib directory installed in sqoop.
+So, if you want to connect to a specific source then that particular connector should be placed inside the lib directory of sqoop.
+Hence it is called as a connector based architecture.
+
+to get help::
+-------------
+sqoop help
+
+sqoop--list-databases::
+-----------------------
+sqoop list-databases \
+--connect "jdbc:mysql://localhost:3306" \
+--username root
+--password edureka
+
+to give the password at runtime::
+---------------------------------
+sqoop list-databases \
+--connect "jdbc:mysql://localhost:3306/" \
+--username root
+-P
+
+sqoop list-tables::
+-------------------
+sqoop list-tables \
+--connect "jdbc:mysql://localhost:3306/retail_db" \
+--username root \
+--password edureka
+
+
+//on executing this command it will produce the following ouput::
+
+Warning: /usr/lib/hcatalog does not exist! HCatalog jobs will fail.
+Please set $HCAT_HOME to the root of your HCatalog installation.
+17/12/22 09:46:47 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+17/12/22 09:46:47 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+information_schema
+mysql
+retail_db
+test
+
+//the log file will be sqoop_log.log
+17/12/22 09:57:28 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+17/12/22 09:57:29 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+
+
+//the data file will be sqoop_data.data
+Warning: /usr/lib/hcatalog does not exist! HCatalog jobs will fail.
+Please set $HCAT_HOME to the root of your HCatalog installation.
+information_schema
+mysql
+retail_db
+test
+
+
+
+sqoop will throw the ouput to the stdout in the console.
+
+1-- will be the output of the sqoop command
+2-- will be the log of the sqoop command.
+
+to write it to the logs::
+
+sqoop list-tables \
+--connect "jdbc:mysql://localhost:3306/retail_db" \
+--username root \
+--password edureka 1>sqoop_data.data 2>sqoop_log.log
+
+to append to the already existing logs::
+
+sqoop list-tables \
+--connect "jdbc:mysql://localhost:3306/retail_db" \
+--username root \
+--password edureka 1>>sqoop_data.data 2>>sqoop_log.log
+
+
+sqoop--eval command::
+---------------------
+the sqoop eval command evaluates a query from the sql and prints the result.
+
+sqoop eval --connect "jdbc:mysql://localhost:3306/retail_db" \
+--username root \
+--password edureka \
+--query "select count(*) from order_items"
+
+
+(or)
+
+sqoop eval --connect "jdbc:mysql://localhost:3306/" \
+--username root \
+--password edureka \
+--query "select count(*) from retail_db.order_items"
+
+sqoop--import::
+----------------
+The sqoop import command is used to import the data from mysql database table to the hdfs directory.
+
+to import the data there are two commands to specify the target directory::
+--target-dir "/user/edureka/sqoop/"
+//the target directory should not exist in the hdfs path while writing the data. (orelse) we can append to the existing directory using --append command
+--warehouse-dir "/user/edureka/sqoop/"
+//it will create a subdirectory with the tablename
+
+//First it will get the schema of the target table by executing the command as ::
+select t.* from 'tablename' AS t limit 1;
+//By default it will take the primary key or unique key of the table and it will calculate the number of records by taking min(column_name) and max(column_name) and it will take the number of map tasks into count and it will allocate that particular number of records to that mapper task.
+
+//by default the number of map tasks will be "4" and "," is the seperator and file format is "text file".
+
+//the text file format is --as-textfile
+
+command for import using target-dir:
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items \
+--target-dir "/user/edureka/sqoop/order_items/"
+
+to append::
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items \
+--target-dir "/user/edureka/sqoop/order_items/" --append
+
+command for import using warehouse-dir:
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items \
+--warehouse-dir "/user/edureka/sqoop/order_items/"
+
+//while importing from the target table it will create a pojo class(in the directory where the sqoop job is being executed) based on the table metadata which is generated from schema and while import everthing is a mapreduce job for sqoop and sqoop is also developed in java, this pojo class is compiled into an jar file and gets submitted into an mapreduce job to the RM.
+
+
+//there are different file formats available with sqoop::
+
+--as-textfile
+--as-avrodatafile
+//Json data in binary format.
+--as-sequencefile
+//binary representation
+--as-parquetfile
+//in columnar format
+
+//while importing a table it must either contain a unique key or an primary key to import using the multiple mappers.
+//if it doesnt contain any key and if we are importing using mutliple mappers it will throw error.
+
+//If we want to import the table with out primary key using multiple mappers we should mention the --split-by column_name
+//If we want to import the table with out primary key and with out --split-by column_name we can keep the -m to 1.
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk --target-dir "/user/edureka/sqoop/order_items_no_pk/" --split-by order_item_id
+
+//If there is an primary key or not (by specifying the column_name) we can specify the number of map tasks on the sqoop job.
+it will be specified either by::
+-m 1 (or)
+--num-mappers 1
+
+--autoreset-to-one-mapper::
+If there is primary key it will use the num mappers (if not mentioned it will use default 4),otherwise it will set the mapper to 1.
+
+//while importing from the table say, if there are 200000(id auto-incremented) and if the num-splits are 4 each mapper will get the 50K records
+//If we insert a row with 1000000(id) into the same table and if the num-splits are 4 then each mapper has to get around(250000) records,so all the records goes to the first mapper and the remaining records doesn't go to mapper 2,3 and the final record(1000000) will go to the last mapper.
+
+--boundary-query::
+
+while retrieving some of the records from the original table there are some fictitious records created for testing in production environment so, while retrieving these records from that table we need to ignore those records.It can be set using the boundary query.
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk \
+--target-dir "/user/edureka/sqoop/order_items_no_pk/" --boundary-query "select min(order_item_id),max(order_item_id) from order_items_no_pk where order_item_id not in (1000000)" --split-by order_item_id
+
+//when boundary query is applied the sqoop query eliminates the records in boundary query and the count is  equally gets distributed.
+
+
+--delete-target-dir::
+
+//it will delete the target directory if exists and place the files in the directory.
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk \
+--target-dir "/user/edureka/sqoop/order_items_no_pk/" --boundary-query "select min(order_item_id),max(order_item_id) from order_items_no_pk where order_item_id not in (1000000)" --split-by order_item_id --delete-target-dir
+
+--columns::
+
+//it is used to select the columns
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk \
+--target-dir "/user/edureka/sqoop/order_items_no_pk/" --boundary-query "select min(order_item_id),max(order_item_id) from order_items_no_pk where order_item_id not in (1000000)" --split-by order_item_id --delete-target-dir --columns "order_item_id,order_item_order_id"
+
+--compression-codec::
+
+//The compression codec is used to compress the generated part-m files into the specified compression format.
+
+ sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk --target-dir "/user/edureka/sqoop/order_items_no_pk/" --boundary-query "select min(order_item_id),max(order_item_id) from order_items_no_pk where order_item_id not in (1000000)" --split-by order_item_id --delete-target-dir --columns "order_item_id,order_item_order_id" --compression-codec org.apache.hadoop.io.compress.SnappyCodec
+ 
+ you can use 
+ --compress or -z
+ 
+ the default compression codec is gunzip(.gz) format.
+ 
+ sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items_no_pk --target-dir "/user/edureka/sqoop/order_items_no_pk/" --boundary-query "select min(order_item_id),max(order_item_id) from order_items_no_pk where order_item_id not in (1000000)" --split-by order_item_id --delete-target-dir --columns "order_item_id,order_item_order_id" -z
+ 
+ --query::
+ 
+ while using query the table should not be used.
+ the query is used when we want to retrieve data from the multiple tables.(using joining of the queries)
+ 
+ while using the queries it cannot determine the primary key of the table so it should be mentioned by --split-by
+ 
+ the --where command also cannot be used in the query command and it should be mentioned within the query itself.
+ 
+ sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --query "select * from order_items where \$CONDITIONS" --target-dir "/user/edureka/order_items_no_pk/" --split-by order_item_id
+
+ //the $CONDITIONS will be treated as linux command so inorder to escape that it will be terminated by "\"
+ 
+ --inline-lob-limit::
+ 
+ sets the maximum size for inline lob's
+ 
+ sqoop import with hive::
+ ------------------------
+ 
+//The import to the hive imports the tables from mysql to hdfs directory first, then from the hdfs directory it will imports the data to the hive databases.
+
+//so,if the directory already exists it will throw the error that the directory already exists.
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items \
+--hive-import
+
+//the above command will import the mysql table to the hdfs directory and from there it will write the data to the hive default database if it is not mentioned. when the data is transferred  successfully from the hdfs directory to the hive database , the hdfs directory storage is removed otherwise it will be as it is.
+
+//when we try to run the same command again, since there is no directory in the hdfs directory it will append to the existing table in hive and it will remove the hdfs directory(staging directory).
+
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items --hive-import --create-hive-table --hive-database edureka --hive-table order_items;
+ 
+
+(or)
+ 
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items --hive-import --create-hive-table --hive-table edureka.order_items;
+ 
+ --create-hive-table will fail if a table already exists in the hive database.
+ 
+ --hive-overwrite will overwrite the table.
+ 
+ 
+ --map-column-hive::
+ 
+ //the map-column-hive is used to map the hdfs columns to the hive database types.
+ 
+ 
+sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table order_items --hive-import --hive-database edureka --hive-table order_items_map --map-column-hive order_item_id=bigint
+
+//while creating the hive tables we cannot specify the datatype precision for the hive table data types like, int(11)
+
+//with sqoop import the data is transferred from the source system to the hdfs directory by , terminated and line terminator.
+
+//when the data is imported into the corresponding(assumed) directory of that particular hive table and then the table is created, while selecting the rows from the hive table it will show as nulls because, while importing the data from mysql to hive the sqoop is able to understand the default type of hive and then import since we are importing to the hdfs directory and while selecting the same from hive it will show as nulls.
+
+//so inorder to give the proper data into the corresponding table we need to specify the corresponding delimiters as needed
+
+so,we can create a table by specifying the fields terminated by::
+
+create table orders(order_id int,order_date string,order_customer_id int,order_status string) row format delimited fields terminated by ','; 
+
+sqoop--import-all command::
+
+sqoop import-all-tables --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --warehouse-dir "/user/edureka/importall/" --exclude-tables "order_items_no_pk" 
+
+output line formatting arguments::
+----------------------------------
+   --enclosed-by <char>               Sets a required field enclosing
+                                      character
+									  
+   //if there is a particular field such as address which will be specified as street,dno when we specify the row delimiter with , we should ignore such fields so it is specified using the enclosed-by
+   --escaped-by <char>                Sets the escape character
+   
+   --fields-terminated-by <char>      Sets the field separator character
+   
+   --lines-terminated-by <char>       Sets the end-of-line character
+   
+   --mysql-delimiters                 Uses MySQL's default delimiter set:
+                                      fields: ,  lines: \n  escaped-by: \
+                                      optionally-enclosed-by: '
+									  
+   --optionally-enclosed-by <char>    Sets a field enclosing character
+
+
+
+Delta data loads::
+------------------
+we can perform the delta data loads in 2 ways::
+1.by using the where command as part of sqoop.
+2.by using the incremental data load options::
+
+   --check-column <column>        Source column to check for incremental
+                                  change
+   --incremental <import-type>    Define an incremental import of type
+                                  'append' or 'lastmodified'
+   --last-value <value>           Last imported value in the incremental
+                                  check column
+ 
+ 
+ //initial data load::
+ 
+ sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --hive-import --create-hive-table --hive-database edureka --hive-table orders --table orders
+ 
+ //incremental data load::
+ 
+ sqoop import --connect "jdbc:mysql://localhost:3306/retail_db" --username root --password edureka --table orders --hive-import --hive-table edureka.orders --check-column order_id --incremental append --last-value 68883
+ 
+ 
+ //If we are importing the delta data with the help of timestamp column we should specify for incremental as lastmodified.
+ 
+ //sometimes, the sqoop statement is unable to fetch the records using the primary key column of varchar type so we need to pass the configuration parameter::
+ 
+ sqoop import-all-tables -Dorg.apache.sqoop.splitter.allow-text-splitter=true
+ 
+//To get the logs of the mapreduce job::
+
+mapred job -logs job_id task_id;
+
+//To kill the particular job::
+mapred job -kill job_id;
+
+
+sqoop import is not good for::
+1.If there is lot of data.
+2.If the sql database which we are importing from is machine critical(since it will use 4 mappers and these mappers will produce 4 connections to the database and it will do the full table scan).
+ 
+sqoop export::
+--------------
+sqoop export --connect "jdbc:mysql://localhost:3306/export_db" --username root --password edureka --table export_table --export-dir /user/edureka/order_items/ --input-fields-terminated-by ',' --m 1
+
+//The table schema should be defined before the export in the mysql database.
+//For export there will not be any min and max calculation it is simply copying the files data to the database.
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
